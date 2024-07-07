@@ -1,10 +1,10 @@
 import {
   Note
-} from '../src/chord_anthology'
+} from './chord_anthology'
 
 import {
   tabNotesNPerString,
-} from '../src/guitar_notation'
+} from './guitar_notation'
 
 
 describe("tabNoteAscending", () => {

@@ -15,7 +15,7 @@ import {
   shiftNote,
   shiftScaleDiatonically,
   vlChordNotes,
-} from "../src/chord_anthology"
+} from "./chord_anthology"
 
 describe("semiTonesBetweenNotesUpwards", () => {
 
