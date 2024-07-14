@@ -43,6 +43,9 @@ export function GuitarFingerChart({tabNotes}: {tabNotes: TabNote[]}) {
 
   return (
     <div className="guitarFingerChart" style={{"--num-frets": numFrets} as ChartProps}>
+
+      <FretLabels bottomFret={minFret} topFret={maxFret} />
+
       <div className="body">
         <Strings />
         <FretWires numFrets={numFrets} />
@@ -52,6 +55,39 @@ export function GuitarFingerChart({tabNotes}: {tabNotes: TabNote[]}) {
     </div>
   )
 }
+
+function FretLabels(
+  {bottomFret, topFret}: {bottomFret: number, topFret: number}
+) {
+  const topFretPos = 1 + topFret - bottomFret
+  return (
+    <div className="labelArea">
+      <div className="label" style={{"--fret": 1} as FretProps}>
+        {bottomFret}
+        <LabelSuperscript fretNum={bottomFret} />
+      </div>
+      <div className="label" style={{"--fret": topFretPos} as FretProps}>
+        {topFret}
+        <LabelSuperscript fretNum={topFret} />
+      </div>
+    </div>
+  )
+}
+
+function LabelSuperscript({fretNum}: {fretNum: number}) {
+  switch (fretNum) {
+    case 1:
+      return <sup>st</sup>
+    case 2:
+      return <sup>nd</sup>
+    case 3:
+      return <sup>rd</sup>
+    default:
+      return <sup>th</sup>
+  }
+}
+
+
 
 function FretWires({numFrets}: {numFrets: number}) {
 
@@ -74,7 +110,7 @@ function FretMarkers(
 
   for (let fret = bottomFret; fret < topFret+1; fret++) {
 
-    const fretPos = fret - bottomFret
+    const fretPos = 1 + fret - bottomFret
 
     if (fret == 12) {
       retVal.push(

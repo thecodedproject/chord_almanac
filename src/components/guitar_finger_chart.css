@@ -21,6 +21,28 @@
   grid-template-rows: var(--fret-label-height) auto;
 }
 
+.guitarFingerChart .labelArea {
+  position: relative;
+  grid-row: 1;
+  grid-column: 2;
+
+  display: grid;
+  grid-template-columns: repeat(var(--num-frets), var(--fret-img-width) var(--fret-space)) var(--fret-img-width);
+  grid-template-rows: 1;
+}
+
+.guitarFingerChart .labelArea .label {
+  --fret: 1;
+
+  grid-column: calc(2*var(--fret));
+
+  transform: rotate(-60deg);
+
+  margin: auto;
+  margin-top: 60%;
+  margin-left: 20%;
+}
+
 .guitarFingerChart .body {
   position: relative;
   grid-row: 2;
