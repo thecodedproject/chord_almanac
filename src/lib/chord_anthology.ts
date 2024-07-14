@@ -31,6 +31,12 @@ export enum Interval {
   MajorSeven = "MajorSeven",
 }
 
+export enum ScaleType {
+  Major = "Major",
+  MelodicMinor = "MelodicMinor",
+  HarmonicMinor = "HarmonicMinor",
+}
+
 export enum DiatonicInterval {
   Unison = "Unison",
   Second = "Second",
@@ -142,6 +148,28 @@ export function intervalBetweenNotesUpwards(lowerNote: Note, upperNote: Note): I
   }
 }
 
+export function diatonicIntervalBetweenScaleDegreesUpwards(
+  s: Scale,
+  lowerDegree: number,
+  upperDegree: number,
+): DiatonicInterval {
+
+  const numNotesInScale = s.intervals.length
+
+  const distance = (upperDegree - lowerDegree + numNotesInScale)%numNotesInScale
+
+  switch(distance) {
+    case 0: return DiatonicInterval.Unison
+    case 1: return DiatonicInterval.Second
+    case 2: return DiatonicInterval.Third
+    case 3: return DiatonicInterval.Fourth
+    case 4: return DiatonicInterval.Fifth
+    case 5: return DiatonicInterval.Sixth
+    case 6: return DiatonicInterval.Seventh
+    default: throw RangeError("cannot convert unknown scale degree distance to interval; lowerDegree:" + lowerDegree + " upperDegree:" + upperDegree + " distance:" + distance)
+  }
+}
+
 function shiftIntervals(intervals: readonly Interval[], numShifts: number): Interval[] {
 
   const retVal = [...intervals]
@@ -161,6 +189,37 @@ export function majorScale(root: Note, mode: Mode): Scale {
     root: root,
     intervals: majorScaleIntervals(mode),
   }
+}
+
+export function scaleFromIonianRoot(
+  ionianRoot: Note,
+  scaleType: ScaleType,
+  startingScaleDegree: number,
+): Scale {
+
+  console.log(ionianRoot, scaleType, startingScaleDegree)
+
+  const ionianScale = majorScale(ionianRoot, Mode.Ionian)
+
+  const intervalBetweenRoots = diatonicIntervalBetweenScaleDegreesUpwards(
+    ionianScale,
+    1,
+    startingScaleDegree,
+  )
+
+  return shiftScaleDiatonically(ionianScale, intervalBetweenRoots)
+}
+
+export function scaleNotes(
+  s: Scale,
+  octave: number = 1,
+): Note[] {
+
+  let n: Note[] = []
+  for (let i = 1; i < (s.intervals.length * octave)+1; i++) {
+    n.push(scaleDegree(s, i))
+  }
+  return n
 }
 
 export function shiftNote(n: Note, i: Interval): Note {

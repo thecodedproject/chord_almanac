@@ -4,12 +4,16 @@ import {
   Mode,
   Note,
   Scale,
+  ScaleType,
   VoiceLeadingChord,
   createCycle,
+  diatonicIntervalBetweenScaleDegreesUpwards,
   intervalBetweenNotesUpwards,
   majorScale,
   majorScaleIntervals,
   scaleDegree,
+  scaleFromIonianRoot,
+  scaleNotes,
   semiTonesBetweenNotesUpwards,
   shiftChordTonesByMap,
   shiftNote,
@@ -461,6 +465,45 @@ describe("intervalBetweenNotesUpwards", () => {
   })
 })
 
+describe("diatonicIntervalBetweenScaleDegreesUpwards", () => {
+  it.each([
+    [1, 1, DiatonicInterval.Unison],
+    [1, 2, DiatonicInterval.Second],
+    [1, 3, DiatonicInterval.Third],
+    [1, 7, DiatonicInterval.Seventh],
+    [2, 1, DiatonicInterval.Seventh],
+    [2, 7, DiatonicInterval.Sixth],
+    [3, 5, DiatonicInterval.Third],
+    [4, 1, DiatonicInterval.Fifth],
+    [5, 2, DiatonicInterval.Fifth],
+  ])("seven note scale - returns correct interval for %s %s", (lower, upper, expected) => {
+    const sevenNoteScale = majorScale(Note.C, Mode.Ionian)
+    expect(diatonicIntervalBetweenScaleDegreesUpwards(sevenNoteScale, lower, upper))
+      .toEqual(expected)
+  })
+
+  it.each([
+    [1, 1, DiatonicInterval.Unison],
+    [1, 2, DiatonicInterval.Second],
+    [1, 3, DiatonicInterval.Third],
+    [5, 1, DiatonicInterval.Second],
+    [3, 1, DiatonicInterval.Fourth],
+  ])("five note scale - returns correct interval for %s %s", (lower, upper, expected) => {
+    const fiveNoteScale: Scale = {
+      root: Note.C,
+      intervals: [
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+        Interval.MinorSecond,
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+      ],
+    }
+    expect(diatonicIntervalBetweenScaleDegreesUpwards(fiveNoteScale, lower, upper))
+      .toEqual(expected)
+  })
+})
+
 describe("shiftNote", () => {
 
   it("should move a note by a fourth", () => {
@@ -553,6 +596,26 @@ describe("majorScaleIntervals", () => {
       Interval.MajorSecond,
       Interval.MajorSecond,
     ])
+  })
+})
+
+describe("scaleFromIonianRoot", () => {
+
+  it.each(
+    [
+      ["CMajorIonian", Note.C, ScaleType.Major, 1, [Note.C, Note.D, Note.E, Note.F, Note.G, Note.A, Note.B]],
+      ["CMajorAeolian", Note.C, ScaleType.Major, 6, [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.G]],
+      ["DMajorIonian", Note.D, ScaleType.Major, 1, [Note.D, Note.E, Note.Gb, Note.G, Note.A, Note.B, Note.Db]],
+    ],
+  )("gives the correct notes for one octave %s", (
+      _,
+      root,
+      scaleType,
+      startingScaleDegree,
+      expected,
+  ) => {
+    const s = scaleFromIonianRoot(root, scaleType, startingScaleDegree)
+    expect(scaleNotes(s)).toEqual(expected)
   })
 })
 
