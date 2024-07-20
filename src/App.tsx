@@ -1,6 +1,8 @@
 import "./App.css"
 
-import { useState } from "react"
+import {
+  newState,
+} from "./state"
 
 import {
   ChordCycleTable,
@@ -21,6 +23,10 @@ import {
   tabNotesNPerString,
 } from "./lib/guitar_notation"
 
+import {
+  ScaleSelector,
+} from "./components/scale_selector"
+
 
 export default function App() {
 
@@ -34,24 +40,20 @@ export default function App() {
     { string: 6, fret: 15 },
   ]
 
-  const [currentStartingDegree, setCurrentStartingDegree] = useState(1)
-
-  const handleClick = (n: number) => {
-    return (event: any) => {
-      console.log("Clicked!", n)
-      setCurrentStartingDegree(n)
-      event.preventDefault()
+  const props = {
+    scale: {
+      rootNote: newState(Note.C),
+      pos: newState(1),
     }
   }
 
-  const scale = scaleFromIonianRoot(Note.C, ScaleType.Major, currentStartingDegree)
+  const scale = scaleFromIonianRoot(props.scale.rootNote.value, ScaleType.Major, props.scale.pos.value)
   const notes = scaleNotes(scale, 3)
 
   const cMaj7Tab = tabNotesNPerString(
     notes,
     3,
   )
-
 
   return (
     <>
@@ -61,13 +63,9 @@ export default function App() {
         <GuitarFingerChart tabNotes={tabNotes}/>
         <GuitarFingerChart tabNotes={cMaj7Tab}/>
 
-      <button onClick={handleClick(1)}>I</button>
-      <button onClick={handleClick(2)}>II</button>
-      <button onClick={handleClick(3)}>III</button>
-      <button onClick={handleClick(4)}>IV</button>
-      <button onClick={handleClick(5)}>V</button>
-      <button onClick={handleClick(6)}>VI</button>
-      <button onClick={handleClick(7)}>VII</button>
+      <br />
+
+      <ScaleSelector props={props.scale}/>
     </>
   )
 }
