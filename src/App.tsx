@@ -44,10 +44,15 @@ export default function App() {
     scale: {
       rootNote: newState(Note.C),
       pos: newState(1),
+      type: newState(ScaleType.Major),
     }
   }
 
-  const scale = scaleFromIonianRoot(props.scale.rootNote.value, ScaleType.Major, props.scale.pos.value)
+  const scale = scaleFromIonianRoot(
+    props.scale.rootNote.value,
+    props.scale.type.value,
+    props.scale.pos.value,
+  )
   const notes = scaleNotes(scale, 3)
 
   const cMaj7Tab = tabNotesNPerString(

@@ -4,19 +4,19 @@ import {
 
 import {
   Note,
+  ScaleType,
 } from "../lib/chord_anthology"
 
 interface IScaleProps {
   rootNote: IState<Note>;
   pos: IState<number>;
+  type: IState<ScaleType>;
 }
 
 export function ScaleSelector({props}: {props: IScaleProps}) {
 
   const handleRootClick = (n: Note) => {
     return (event: any) => {
-      console.log("Root click:", n)
-
       props.rootNote.set(n)
       event.preventDefault()
     }
@@ -24,25 +24,40 @@ export function ScaleSelector({props}: {props: IScaleProps}) {
 
   const handlePosClick = (pos: number) => {
     return (event: any) => {
-      console.log("pos click", pos)
-
       props.pos.set(pos)
-
       event.preventDefault()
     }
   }
 
-  console.log("ScaleSelector: current root:", props.rootNote.value, "pos:", props.pos.value)
-
+  const handleTypeClick = (scaleType: ScaleType) => {
+    return (event: any) => {
+      props.type.set(scaleType)
+      event.preventDefault()
+    }
+  }
 
   return (
     <div className="scaleSelector">
+
+      <div className="typeSelector">
+        <button onClick={handleTypeClick(ScaleType.Major)}>Major</button>
+        <button onClick={handleTypeClick(ScaleType.MelodicMinor)}>Melodic minor</button>
+        <button onClick={handleTypeClick(ScaleType.HarmonicMinor)}>Harmonic minor</button>
+      </div>
 
       <div className="rootSelector">
         <button onClick={handleRootClick(Note.C)}>C</button>
         <button onClick={handleRootClick(Note.Db)}>Db</button>
         <button onClick={handleRootClick(Note.D)}>D</button>
         <button onClick={handleRootClick(Note.Eb)}>Eb</button>
+        <button onClick={handleRootClick(Note.E)}>E</button>
+        <button onClick={handleRootClick(Note.F)}>F</button>
+        <button onClick={handleRootClick(Note.Gb)}>Gb</button>
+        <button onClick={handleRootClick(Note.G)}>G</button>
+        <button onClick={handleRootClick(Note.Ab)}>Ab</button>
+        <button onClick={handleRootClick(Note.A)}>Ab</button>
+        <button onClick={handleRootClick(Note.Bb)}>Bb</button>
+        <button onClick={handleRootClick(Note.B)}>B</button>
       </div>
 
       <div className="positionSelector">

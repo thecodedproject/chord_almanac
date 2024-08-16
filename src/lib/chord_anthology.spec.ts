@@ -14,6 +14,7 @@ import {
   scaleDegree,
   scaleFromIonianRoot,
   scaleNotes,
+  scaleTypeForMode,
   semiTonesBetweenNotesUpwards,
   shiftChordTonesByMap,
   shiftNote,
@@ -531,6 +532,39 @@ describe("shiftNote", () => {
   })
 })
 
+describe("scaleTypeForMode", () => {
+  it.each(
+    [
+      [Mode.Ionian, ScaleType.Major],
+      [Mode.Dorian, ScaleType.Major],
+      [Mode.Phrygian, ScaleType.Major],
+      [Mode.Lydian, ScaleType.Major],
+      [Mode.Mixolydian, ScaleType.Major],
+      [Mode.Aeolian, ScaleType.Major],
+      [Mode.Locrian, ScaleType.Major],
+      [Mode.Ionian_b3, ScaleType.MelodicMinor],
+      [Mode.Dorian_b2, ScaleType.MelodicMinor],
+      [Mode.Phrygian_b1, ScaleType.MelodicMinor],
+      [Mode.Lydian_b7, ScaleType.MelodicMinor],
+      [Mode.Mixolydian_b6, ScaleType.MelodicMinor],
+      [Mode.Aeolian_b5, ScaleType.MelodicMinor],
+      [Mode.Locrian_b4, ScaleType.MelodicMinor],
+      [Mode.Ionian_sharp5, ScaleType.HarmonicMinor],
+      [Mode.Dorian_sharp4, ScaleType.HarmonicMinor],
+      [Mode.Phrygian_sharp3, ScaleType.HarmonicMinor],
+      [Mode.Lydian_sharp2, ScaleType.HarmonicMinor],
+      [Mode.Mixolydian_sharp1, ScaleType.HarmonicMinor],
+      [Mode.Aeolian_sharp7, ScaleType.HarmonicMinor],
+      [Mode.Locrian_sharp6, ScaleType.HarmonicMinor],
+    ],
+  )("returns correct scale type for %s", (
+    mode,
+    expectedScaleType,
+  ) => {
+    expect(scaleTypeForMode(mode)).toEqual(expectedScaleType)
+  })
+})
+
 describe("majorScaleIntervals", () => {
   it("should return correct intervals for all seven modes", () => {
     expect(majorScaleIntervals(Mode.Ionian)).toEqual([
@@ -606,6 +640,14 @@ describe("scaleFromIonianRoot", () => {
       ["CMajorIonian", Note.C, ScaleType.Major, 1, [Note.C, Note.D, Note.E, Note.F, Note.G, Note.A, Note.B]],
       ["CMajorAeolian", Note.C, ScaleType.Major, 6, [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.G]],
       ["DMajorIonian", Note.D, ScaleType.Major, 1, [Note.D, Note.E, Note.Gb, Note.G, Note.A, Note.B, Note.Db]],
+
+      [
+        "CMelodicMinor_Ionian_b3",
+        Note.C,
+        ScaleType.MelodicMinor,
+        1,
+        [Note.C, Note.D, Note.Eb, Note.F, Note.G, Note.A, Note.B],
+      ],
     ],
   )("gives the correct notes for one octave %s", (
       _,

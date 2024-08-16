@@ -8,6 +8,7 @@ import {
 
 import {
   Note,
+  ScaleType,
 } from "../lib/chord_anthology"
 
 import {
@@ -24,6 +25,10 @@ describe("ScaleSelector", () => {
       },
       pos: {
         value: 1,
+        set: jest.fn(),
+      },
+      type: {
+        value: ScaleType.Major,
         set: jest.fn(),
       },
     }

@@ -48,6 +48,8 @@ export enum DiatonicInterval {
 }
 
 export enum Mode {
+
+  // Major scale modes
   Ionian = "Ionian",
   Dorian = "Dorian",
   Phrygian = "Phrygian",
@@ -55,6 +57,24 @@ export enum Mode {
   Mixolydian = "Mixolydian",
   Aeolian = "Aeolian",
   Locrian = "Locrian",
+
+  // Melodic minor modes
+  Ionian_b3 = "Ionian_b3",
+  Dorian_b2 = "Dorian_b2",
+  Phrygian_b1 = "Phrygian_b1",
+  Lydian_b7 = "Lydian_b7",
+  Mixolydian_b6 = "Mixolydian_b6",
+  Aeolian_b5 = "Aeolian_b5",
+  Locrian_b4 = "Locrian_b4",
+
+  // Harmonic minor modes
+  Ionian_sharp5 = "Ionian_sharp5",
+  Dorian_sharp4 = "Dorian_sharp4",
+  Phrygian_sharp3 = "Phrygian_sharp3",
+  Lydian_sharp2 = "Lydian_sharp2",
+  Mixolydian_sharp1 = "Mixolydian_sharp1",
+  Aeolian_sharp7 = "Aeolian_sharp7",
+  Locrian_sharp6 = "Locrian_sharp6",
 }
 
 export interface Scale {
@@ -65,6 +85,40 @@ export interface Scale {
 export interface VoiceLeadingChord {
   scale: Scale
   tones: number[]
+}
+
+export function scaleTypeForMode(mode: Mode): ScaleType {
+
+  switch(mode) {
+    case Mode.Ionian:
+    case Mode.Dorian:
+    case Mode.Phrygian:
+    case Mode.Lydian:
+    case Mode.Mixolydian:
+    case Mode.Aeolian:
+    case Mode.Locrian:
+      return ScaleType.Major
+
+    case Mode.Ionian_b3:
+    case Mode.Dorian_b2:
+    case Mode.Phrygian_b1:
+    case Mode.Lydian_b7:
+    case Mode.Mixolydian_b6:
+    case Mode.Aeolian_b5:
+    case Mode.Locrian_b4:
+      return ScaleType.MelodicMinor
+
+    case Mode.Ionian_sharp5:
+    case Mode.Dorian_sharp4:
+    case Mode.Phrygian_sharp3:
+    case Mode.Lydian_sharp2:
+    case Mode.Mixolydian_sharp1:
+    case Mode.Aeolian_sharp7:
+    case Mode.Locrian_sharp6:
+      return ScaleType.HarmonicMinor
+
+    default: throw RangeError("unknown mode: " + mode)
+  }
 }
 
 export function majorScaleIntervals(mode: Mode): Interval[] {
@@ -88,13 +142,12 @@ export function majorScaleIntervals(mode: Mode): Interval[] {
       case Mode.Mixolydian: return 4
       case Mode.Aeolian: return 5
       case Mode.Locrian: return 6
-      default: throw RangeError("cannot convert unknown mode to number of shifts:" + mode)
+      default: throw RangeError("cannot convert unknown major scale mode to number of shifts:" + mode)
     }
   })()
 
   return shiftIntervals(ionianMajorScaleIntervals, numShifts)
 }
-
 
 function noteAsNumber(n: Note): number {
   switch(n) {
