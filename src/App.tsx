@@ -1,15 +1,15 @@
 import "./App.css"
 
 import {
-  GuitarScalePage
-} from './pages/guitar_scale_page'
+  GuitarTetradInversions
+} from './pages/guitar_tetrad_inversions'
 
 
 export default function App() {
 
   return (
     <>
-      <GuitarScalePage />
+      <GuitarTetradInversions />
     </>
   )
 }

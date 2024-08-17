@@ -1,0 +1,38 @@
+
+.guitarTetradInversionsTable {
+
+  --row-label-width: 5%;
+  --col-label-width: 5%;
+
+  --finger-chart-width: 20%;
+  --finger-chart-height: 20%;
+
+  --num-inversions: 4; /* Each inversion is in it's own column */
+  --num-voicings: 6;   /* Each voicing is in it's own row */
+
+  display: grid;
+  grid-template-columns: var(--col-label-width) repeat(var(--num-inversions), auto);
+  grid-template-rows: var(--row-label-width) repeat(var(--num-voicings), var(--finger-chart-height));
+}
+
+.guitarTetradInversionsTable .voiceLabel {
+  --voice: 1;
+
+  grid-row: calc(1 + var(--voice));
+  grid-column: 1;
+}
+
+.guitarTetradInversionsTable .inversionLabel {
+  --inversion: 1;
+
+  grid-row: 1;
+  grid-column: calc(1 + var(--inversion));
+}
+
+.guitarTetradInversionsTable .fingerChart {
+  --inversion: 1;
+  --voice: 1;
+
+  grid-row: calc(1 + var(--voice));
+  grid-column: calc(1 + var(--inversion));
+}
