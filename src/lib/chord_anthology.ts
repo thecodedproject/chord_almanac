@@ -121,32 +121,206 @@ export function scaleTypeForMode(mode: Mode): ScaleType {
   }
 }
 
-export function majorScaleIntervals(mode: Mode): Interval[] {
+export function diatonicScaleIntervals(mode: Mode): Interval[] {
 
-  const ionianMajorScaleIntervals = [
-    Interval.MajorSecond,
-    Interval.MajorSecond,
-    Interval.MinorSecond,
-    Interval.MajorSecond,
-    Interval.MajorSecond,
-    Interval.MajorSecond,
-    Interval.MinorSecond,
-  ]
+  switch(mode) {
+    // Major scale modes
+    case Mode.Ionian: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Dorian: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Phrygian: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Lydian: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Mixolydian: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Aeolian: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Locrian: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
 
-  let numShifts = (() => {
-    switch(mode) {
-      case Mode.Ionian: return 0
-      case Mode.Dorian: return 1
-      case Mode.Phrygian: return 2
-      case Mode.Lydian: return 3
-      case Mode.Mixolydian: return 4
-      case Mode.Aeolian: return 5
-      case Mode.Locrian: return 6
-      default: throw RangeError("cannot convert unknown major scale mode to number of shifts:" + mode)
-    }
-  })()
+    // Melodic minor modes
+    case Mode.Ionian_b3: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Dorian_b2: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Phrygian_b1: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Lydian_b7: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Mixolydian_b6: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Aeolian_b5: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Locrian_b4: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
 
-  return shiftIntervals(ionianMajorScaleIntervals, numShifts)
+    // Harmonic minor modes
+    case Mode.Ionian_sharp5: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Dorian_sharp4: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Phrygian_sharp3: return [
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Lydian_sharp2: return [
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Mixolydian_sharp1: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+    ]
+    case Mode.Aeolian_sharp7: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+    ]
+    case Mode.Locrian_sharp6: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+
+    default: throw RangeError("cannot get scale intervals for unknown diatonic mode:" + mode)
+  }
 }
 
 function noteAsNumber(n: Note): number {
@@ -237,10 +411,10 @@ function shiftIntervals(intervals: readonly Interval[], numShifts: number): Inte
   return retVal
 }
 
-export function majorScale(root: Note, mode: Mode): Scale {
+export function diatonicScale(root: Note, mode: Mode): Scale {
   return {
     root: root,
-    intervals: majorScaleIntervals(mode),
+    intervals: diatonicScaleIntervals(mode),
   }
 }
 
@@ -249,10 +423,14 @@ export function scaleFromIonianRoot(
   scaleType: ScaleType,
   startingScaleDegree: number,
 ): Scale {
-
-  console.log(ionianRoot, scaleType, startingScaleDegree)
-
-  const ionianScale = majorScale(ionianRoot, Mode.Ionian)
+  const ionianScale =  (() => {
+    switch(scaleType) {
+      case ScaleType.Major: return diatonicScale(ionianRoot, Mode.Ionian)
+      case ScaleType.MelodicMinor: return diatonicScale(ionianRoot, Mode.Ionian_b3)
+      case ScaleType.HarmonicMinor: return diatonicScale(ionianRoot, Mode.Ionian_sharp5)
+      default: throw RangeError("cannot get scale from ionian root for unknown diatonic scale type: " + scaleType)
+    }
+  })()
 
   const intervalBetweenRoots = diatonicIntervalBetweenScaleDegreesUpwards(
     ionianScale,

@@ -8,9 +8,9 @@ import {
   VoiceLeadingChord,
   createCycle,
   diatonicIntervalBetweenScaleDegreesUpwards,
+  diatonicScale,
+  diatonicScaleIntervals,
   intervalBetweenNotesUpwards,
-  majorScale,
-  majorScaleIntervals,
   scaleDegree,
   scaleFromIonianRoot,
   scaleNotes,
@@ -478,7 +478,7 @@ describe("diatonicIntervalBetweenScaleDegreesUpwards", () => {
     [4, 1, DiatonicInterval.Fifth],
     [5, 2, DiatonicInterval.Fifth],
   ])("seven note scale - returns correct interval for %s %s", (lower, upper, expected) => {
-    const sevenNoteScale = majorScale(Note.C, Mode.Ionian)
+    const sevenNoteScale = diatonicScale(Note.C, Mode.Ionian)
     expect(diatonicIntervalBetweenScaleDegreesUpwards(sevenNoteScale, lower, upper))
       .toEqual(expected)
   })
@@ -565,71 +565,88 @@ describe("scaleTypeForMode", () => {
   })
 })
 
-describe("majorScaleIntervals", () => {
-  it("should return correct intervals for all seven modes", () => {
-    expect(majorScaleIntervals(Mode.Ionian)).toEqual([
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Dorian)).toEqual([
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Phrygian)).toEqual([
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Lydian)).toEqual([
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Mixolydian)).toEqual([
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Aeolian)).toEqual([
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-    ])
-    expect(majorScaleIntervals(Mode.Locrian)).toEqual([
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MinorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-      Interval.MajorSecond,
-    ])
+describe("diatonicScale", () => {
+  it.each(
+    [
+      [
+        Note.C,
+        Mode.Ionian_b3,
+        [Note.C, Note.D, Note.Eb, Note.F, Note.G, Note.A, Note.B],
+      ],
+      [
+        Note.D,
+        Mode.Dorian_b2,
+        [Note.D, Note.Eb, Note.F, Note.G, Note.A, Note.B, Note.C],
+      ],
+      [
+        Note.Eb,
+        Mode.Phrygian_b1,
+        [Note.Eb, Note.F, Note.G, Note.A, Note.B, Note.C, Note.D],
+      ],
+      [
+        Note.F,
+        Mode.Lydian_b7,
+        [Note.F, Note.G, Note.A, Note.B, Note.C, Note.D, Note.Eb],
+      ],
+      [
+        Note.G,
+        Mode.Mixolydian_b6,
+        [Note.G, Note.A, Note.B, Note.C, Note.D, Note.Eb, Note.F],
+      ],
+      [
+        Note.A,
+        Mode.Aeolian_b5,
+        [Note.A, Note.B, Note.C, Note.D, Note.Eb, Note.F, Note.G],
+      ],
+      [
+        Note.B,
+        Mode.Locrian_b4,
+        [Note.B, Note.C, Note.D, Note.Eb, Note.F, Note.G, Note.A],
+      ],
+
+      [
+        Note.C,
+        Mode.Ionian_sharp5,
+        [Note.C, Note.D, Note.E, Note.F, Note.Ab, Note.A, Note.B],
+      ],
+      [
+        Note.D,
+        Mode.Dorian_sharp4,
+        [Note.D, Note.E, Note.F, Note.Ab, Note.A, Note.B, Note.C],
+      ],
+      [
+        Note.E,
+        Mode.Phrygian_sharp3,
+        [Note.E, Note.F, Note.Ab, Note.A, Note.B, Note.C, Note.D],
+      ],
+      [
+        Note.F,
+        Mode.Lydian_sharp2,
+        [Note.F, Note.Ab, Note.A, Note.B, Note.C, Note.D, Note.E],
+      ],
+      [
+        Note.Ab,
+        Mode.Mixolydian_sharp1,
+        [Note.Ab, Note.A, Note.B, Note.C, Note.D, Note.E, Note.F],
+      ],
+      [
+        Note.A,
+        Mode.Aeolian_sharp7,
+        [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab],
+      ],
+      [
+        Note.B,
+        Mode.Locrian_sharp6,
+        [Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab, Note.A],
+      ],
+    ],
+  )("gives the correct notes for one octave %s %s", (
+      root,
+      mode,
+      expectedNotes,
+  ) => {
+    const s = diatonicScale(root, mode)
+    expect(scaleNotes(s)).toEqual(expectedNotes)
   })
 })
 
@@ -648,6 +665,28 @@ describe("scaleFromIonianRoot", () => {
         1,
         [Note.C, Note.D, Note.Eb, Note.F, Note.G, Note.A, Note.B],
       ],
+      [
+        "CMelodicMinor_Dorian_b2",
+        Note.C,
+        ScaleType.MelodicMinor,
+        2,
+        [Note.D, Note.Eb, Note.F, Note.G, Note.A, Note.B, Note.C],
+      ],
+
+      [
+        "CHarmonicMinor_Ionian_sharp5",
+        Note.C,
+        ScaleType.HarmonicMinor,
+        1,
+        [Note.C, Note.D, Note.E, Note.F, Note.Ab, Note.A, Note.B],
+      ],
+      [
+        "CHarmonicMinor_Aeolian_sharp7",
+        Note.C,
+        ScaleType.HarmonicMinor,
+        6,
+        [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab],
+      ],
     ],
   )("gives the correct notes for one octave %s", (
       _,
@@ -665,7 +704,7 @@ describe("scaleDegree", () => {
   it("should return a degree", () => {
     const AMajorScale: Scale = {
       root: Note.A,
-      intervals: majorScaleIntervals(Mode.Ionian),
+      intervals: diatonicScaleIntervals(Mode.Ionian),
     }
     expect(scaleDegree(AMajorScale, 1)).toEqual(Note.A)
     expect(scaleDegree(AMajorScale, 2)).toEqual(Note.B)
@@ -679,7 +718,7 @@ describe("scaleDegree", () => {
 
     const GbMajorScale: Scale = {
       root: Note.Gb,
-      intervals: majorScaleIntervals(Mode.Ionian),
+      intervals: diatonicScaleIntervals(Mode.Ionian),
     }
     expect(scaleDegree(GbMajorScale, 2)).toEqual(Note.Ab)
     expect(scaleDegree(GbMajorScale, 9)).toEqual(Note.Ab)
@@ -691,7 +730,7 @@ describe("voice leading chord", () => {
   it("should return its notes", () => {
     expect((() => {
       const cMaj: VoiceLeadingChord = {
-        scale: majorScale(Note.C, Mode.Ionian),
+        scale: diatonicScale(Note.C, Mode.Ionian),
         tones: [1,3,5],
       }
       return vlChordNotes(cMaj)
@@ -701,7 +740,7 @@ describe("voice leading chord", () => {
   it("should return its notes in order when its inverted", () => {
     expect((() => {
       const cMaj: VoiceLeadingChord = {
-        scale: majorScale(Note.C, Mode.Ionian),
+        scale: diatonicScale(Note.C, Mode.Ionian),
         tones: [3,1,5],
       }
       return vlChordNotes(cMaj)
@@ -709,7 +748,7 @@ describe("voice leading chord", () => {
 
     expect((() => {
       const cMaj: VoiceLeadingChord = {
-        scale: majorScale(Note.C, Mode.Ionian),
+        scale: diatonicScale(Note.C, Mode.Ionian),
         tones: [3,5,1,7],
       }
       return vlChordNotes(cMaj)
@@ -722,46 +761,46 @@ describe("shiftScaleDiatonically", () => {
   it("should change the scale of the chord by the step specified", () => {
     expect(
       shiftScaleDiatonically(
-        majorScale(Note.C, Mode.Ionian),
+        diatonicScale(Note.C, Mode.Ionian),
         DiatonicInterval.Fourth,
       ),
     ).toEqual(
-      majorScale(Note.F, Mode.Lydian),
+      diatonicScale(Note.F, Mode.Lydian),
     )
 
     expect(
       shiftScaleDiatonically(
-        majorScale(Note.A, Mode.Aeolian),
+        diatonicScale(Note.A, Mode.Aeolian),
         DiatonicInterval.Second,
       ),
     ).toEqual(
-      majorScale(Note.B, Mode.Locrian),
+      diatonicScale(Note.B, Mode.Locrian),
     )
 
     expect(
       shiftScaleDiatonically(
-        majorScale(Note.Gb, Mode.Lydian),
+        diatonicScale(Note.Gb, Mode.Lydian),
         DiatonicInterval.Seventh,
       ),
     ).toEqual(
-      majorScale(Note.F, Mode.Phrygian),
+      diatonicScale(Note.F, Mode.Phrygian),
     )
 
     expect(
       shiftScaleDiatonically(
-        majorScale(Note.Eb, Mode.Mixolydian),
+        diatonicScale(Note.Eb, Mode.Mixolydian),
         DiatonicInterval.Sixth,
       ),
     ).toEqual(
-      majorScale(Note.C, Mode.Phrygian),
+      diatonicScale(Note.C, Mode.Phrygian),
     )
   })
 
   it("does not change the input scale", () => {
-    const input = majorScale(Note.C, Mode.Ionian)
+    const input = diatonicScale(Note.C, Mode.Ionian)
     shiftScaleDiatonically(input, DiatonicInterval.Fifth)
 
-    expect(input).toEqual(majorScale(Note.C, Mode.Ionian))
+    expect(input).toEqual(diatonicScale(Note.C, Mode.Ionian))
   })
 })
 
@@ -873,7 +912,7 @@ describe("createCycle", () => {
 
   it("creates cycle 2 with maximum number of chords", () => {
     const startingChord: VoiceLeadingChord = {
-      scale: majorScale(Note.C, Mode.Ionian),
+      scale: diatonicScale(Note.C, Mode.Ionian),
       tones: [1,3,5],
     }
 
@@ -891,15 +930,15 @@ describe("createCycle", () => {
     )
     expect(cycle).toEqual([
       {
-        scale: majorScale(Note.C, Mode.Ionian),
+        scale: diatonicScale(Note.C, Mode.Ionian),
         tones: [1,3,5],
       },
       {
-        scale: majorScale(Note.D, Mode.Dorian),
+        scale: diatonicScale(Note.D, Mode.Dorian),
         tones: [5,1,3],
       },
       {
-        scale: majorScale(Note.E, Mode.Phrygian),
+        scale: diatonicScale(Note.E, Mode.Phrygian),
         tones: [3,5,1],
       },
     ])
@@ -907,7 +946,7 @@ describe("createCycle", () => {
 
   it("creates cycle 2 with no max specified", () => {
     const startingChord: VoiceLeadingChord = {
-      scale: majorScale(Note.C, Mode.Ionian),
+      scale: diatonicScale(Note.C, Mode.Ionian),
       tones: [1,3,5],
     }
 
@@ -924,34 +963,34 @@ describe("createCycle", () => {
     )
 
     expect(cycle).toEqual([
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [1,3,5]},
-      {scale: majorScale(Note.D, Mode.Dorian),      tones: [5,1,3]},
-      {scale: majorScale(Note.E, Mode.Phrygian),    tones: [3,5,1]},
-      {scale: majorScale(Note.F, Mode.Lydian),      tones: [1,3,5]},
-      {scale: majorScale(Note.G, Mode.Mixolydian),  tones: [5,1,3]},
-      {scale: majorScale(Note.A, Mode.Aeolian),     tones: [3,5,1]},
-      {scale: majorScale(Note.B, Mode.Locrian),     tones: [1,3,5]},
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [5,1,3]},
-      {scale: majorScale(Note.D, Mode.Dorian),      tones: [3,5,1]},
-      {scale: majorScale(Note.E, Mode.Phrygian),    tones: [1,3,5]},
-      {scale: majorScale(Note.F, Mode.Lydian),      tones: [5,1,3]},
-      {scale: majorScale(Note.G, Mode.Mixolydian),  tones: [3,5,1]},
-      {scale: majorScale(Note.A, Mode.Aeolian),     tones: [1,3,5]},
-      {scale: majorScale(Note.B, Mode.Locrian),     tones: [5,1,3]},
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [3,5,1]},
-      {scale: majorScale(Note.D, Mode.Dorian),      tones: [1,3,5]},
-      {scale: majorScale(Note.E, Mode.Phrygian),    tones: [5,1,3]},
-      {scale: majorScale(Note.F, Mode.Lydian),      tones: [3,5,1]},
-      {scale: majorScale(Note.G, Mode.Mixolydian),  tones: [1,3,5]},
-      {scale: majorScale(Note.A, Mode.Aeolian),     tones: [5,1,3]},
-      {scale: majorScale(Note.B, Mode.Locrian),     tones: [3,5,1]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [1,3,5]},
+      {scale: diatonicScale(Note.D, Mode.Dorian),      tones: [5,1,3]},
+      {scale: diatonicScale(Note.E, Mode.Phrygian),    tones: [3,5,1]},
+      {scale: diatonicScale(Note.F, Mode.Lydian),      tones: [1,3,5]},
+      {scale: diatonicScale(Note.G, Mode.Mixolydian),  tones: [5,1,3]},
+      {scale: diatonicScale(Note.A, Mode.Aeolian),     tones: [3,5,1]},
+      {scale: diatonicScale(Note.B, Mode.Locrian),     tones: [1,3,5]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [5,1,3]},
+      {scale: diatonicScale(Note.D, Mode.Dorian),      tones: [3,5,1]},
+      {scale: diatonicScale(Note.E, Mode.Phrygian),    tones: [1,3,5]},
+      {scale: diatonicScale(Note.F, Mode.Lydian),      tones: [5,1,3]},
+      {scale: diatonicScale(Note.G, Mode.Mixolydian),  tones: [3,5,1]},
+      {scale: diatonicScale(Note.A, Mode.Aeolian),     tones: [1,3,5]},
+      {scale: diatonicScale(Note.B, Mode.Locrian),     tones: [5,1,3]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [3,5,1]},
+      {scale: diatonicScale(Note.D, Mode.Dorian),      tones: [1,3,5]},
+      {scale: diatonicScale(Note.E, Mode.Phrygian),    tones: [5,1,3]},
+      {scale: diatonicScale(Note.F, Mode.Lydian),      tones: [3,5,1]},
+      {scale: diatonicScale(Note.G, Mode.Mixolydian),  tones: [1,3,5]},
+      {scale: diatonicScale(Note.A, Mode.Aeolian),     tones: [5,1,3]},
+      {scale: diatonicScale(Note.B, Mode.Locrian),     tones: [3,5,1]},
     ])
   })
 
   it("returns once the cycle reaches the starting chord if we havnt reached the max number of chords", () => {
 
     const startingChord: VoiceLeadingChord = {
-      scale: majorScale(Note.C, Mode.Ionian),
+      scale: diatonicScale(Note.C, Mode.Ionian),
       tones: [1,3,5],
     }
 
@@ -968,9 +1007,9 @@ describe("createCycle", () => {
     )
 
     expect(cycle).toEqual([
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [1,3,5]},
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [3,5,1]},
-      {scale: majorScale(Note.C, Mode.Ionian),      tones: [5,1,3]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [1,3,5]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [3,5,1]},
+      {scale: diatonicScale(Note.C, Mode.Ionian),      tones: [5,1,3]},
     ])
   })
 
@@ -981,7 +1020,7 @@ describe("POC creating cycle2", () => {
   it("logs cycle 2 chord notes - triads; close voice", () => {
 
     let c: VoiceLeadingChord = {
-      scale: majorScale(Note.C, Mode.Ionian),
+      scale: diatonicScale(Note.C, Mode.Ionian),
       tones: [1, 5, 3],
     }
 

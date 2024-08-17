@@ -8,7 +8,7 @@ import {
   Mode,
   Note,
   VoiceLeadingChord,
-  majorScale,
+  diatonicScale,
   vlChordNotes,
 } from '../lib/chord_anthology'
 
@@ -40,7 +40,7 @@ export function GuitarTetradInversionsTable() {
   ]
 
   const chord: VoiceLeadingChord = {
-    scale: majorScale(Note.C, Mode.Ionian),
+    scale: diatonicScale(Note.C, Mode.Ionian),
     tones: [1,5,7,3],
   }
 
