@@ -17,10 +17,13 @@ import {
   scaleTypeForMode,
   semiTonesBetweenNotesUpwards,
   shiftChordTonesByMap,
+  shiftChordToNextNearestInversion,
   shiftNote,
   shiftScaleDiatonically,
   vlChordNotes,
 } from "./chord_anthology"
+
+import {cloneDeep} from "lodash"
 
 describe("semiTonesBetweenNotesUpwards", () => {
 
@@ -905,6 +908,111 @@ describe("shiftChordTonesByMap", () => {
       ),
     )
     expect(input).toEqual([1,2,3])
+  })
+})
+
+describe("shiftChordToNextNearestInversion", () => {
+
+  const CAeolian = diatonicScale(Note.C, Mode.Aeolian)
+
+  it.each([
+    [
+      "Triad close",
+      {scale: CAeolian, tones: [1,3,5]},
+      {scale: CAeolian, tones: [3,5,1]},
+    ],
+    [
+      "Triad close inverted",
+      {scale: CAeolian, tones: [3,5,1]},
+      {scale: CAeolian, tones: [5,1,3]},
+    ],
+    [
+      "Triad open",
+      {scale: CAeolian, tones: [3,1,5]},
+      {scale: CAeolian, tones: [5,3,1]},
+    ],
+    [
+      "Triad open inverted",
+      {scale: CAeolian, tones: [5,3,1]},
+      {scale: CAeolian, tones: [1,5,3]},
+    ],
+    [
+      "1357",
+      {scale: CAeolian, tones: [1,3,5,7]},
+      {scale: CAeolian, tones: [3,5,7,1]},
+    ],
+    [
+      "7135",
+      {scale: CAeolian, tones: [7,1,3,5]},
+      {scale: CAeolian, tones: [1,3,5,7]},
+    ],
+    [
+      "1537",
+      {scale: CAeolian, tones: [1,5,3,7]},
+      {scale: CAeolian, tones: [3,7,5,1]},
+    ],
+    [
+      "639",
+      {scale: CAeolian, tones: [6,3,9]},
+      {scale: CAeolian, tones: [9,6,3]},
+    ],
+  ])("returns correct chord %s", (
+    _,
+    input,
+    expected,
+  ) => {
+    expect(shiftChordToNextNearestInversion(input)).toEqual(expected)
+  })
+
+  it.each([
+    [
+      "Triad close",
+      {scale: CAeolian, tones: [1,3,5]},
+      {scale: CAeolian, tones: [5,1,3]},
+      2,
+    ],
+    [
+      "1357",
+      {scale: CAeolian, tones: [1,3,5,7]},
+      {scale: CAeolian, tones: [7,1,3,5]},
+      3,
+    ],
+    [
+      "3175",
+      {scale: CAeolian, tones: [3,1,7,5]},
+      {scale: CAeolian, tones: [3,1,7,5]},
+      4,
+    ],
+    [
+      "3175",
+      {scale: CAeolian, tones: [3,1,7,5]},
+      {scale: CAeolian, tones: [1,7,5,3]},
+      3,
+    ],
+    [
+      "1537",
+      {scale: CAeolian, tones: [1,5,3,7]},
+      {scale: CAeolian, tones: [7,3,1,5]},
+      3,
+    ],
+  ])("returns correct chord with multile shifts %s", (
+    _,
+    input,
+    expected,
+    numShifts
+  ) => {
+    expect(shiftChordToNextNearestInversion(input, numShifts)).toEqual(expected)
+  })
+
+  it("does not chage the input chord", () => {
+
+    const inputChord: VoiceLeadingChord = {
+      scale: diatonicScale(Note.A, Mode.Ionian_b3),
+      tones: [1,3,5],
+    }
+    const expectedInputChord = cloneDeep(inputChord)
+    shiftChordToNextNearestInversion(inputChord)
+    expect(inputChord).toEqual(expectedInputChord)
   })
 })
 

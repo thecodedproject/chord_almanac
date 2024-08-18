@@ -1,4 +1,7 @@
-import {isEqual} from "lodash"
+import {
+  cloneDeep,
+  isEqual,
+} from "lodash"
 
 
 export enum Note {
@@ -565,6 +568,36 @@ export function shiftChordTonesByMap(chordTones: readonly number[], mapping: Map
   }
 
   return retVal
+}
+
+// shiftChordToNextNearestInversion inverts the chord (changing only the chord tones)
+// by moving each chord tone to nearest chord tone above it.
+//
+// e.g. chord tones [1,3,5] will be inverted to [3,5,1]
+//      chord tones [1,5,3,7] will be inverted to [3,7,5,1]
+export function shiftChordToNextNearestInversion(
+  chord: VoiceLeadingChord,
+  numShifts: number = 1,
+): VoiceLeadingChord {
+
+  const sortedTones = cloneDeep(chord.tones)
+  sortedTones.sort((a,b) => a-b)
+
+  let shiftMap = new Map<number, number>()
+
+  for (let i = 0; i < sortedTones.length; i++) {
+    let destI = (i+numShifts)%sortedTones.length
+    shiftMap.set(sortedTones[i], sortedTones[destI])
+  }
+
+  let chordCopy = cloneDeep(chord)
+
+  chordCopy.tones = shiftChordTonesByMap(
+    chordCopy.tones,
+    shiftMap,
+  )
+
+  return chordCopy
 }
 
 export function createCycle(
