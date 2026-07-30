@@ -34,7 +34,7 @@ describe("tabNoteAscending", () => {
       Note.B,
       Note.E,
       Note.G,
-    ], 5)).toEqual([
+    ], { notesPerString: 5 })).toEqual([
       {string: 6, fret: 3},
       {string: 6, fret: 5},
       {string: 6, fret: 7},
@@ -49,7 +49,7 @@ describe("tabNoteAscending", () => {
         Note.E,
         Note.E,
         Note.E,
-      ], 3)).toEqual([
+      ], { notesPerString: 3 })).toEqual([
         {string: 6, fret: 0},
         {string: 6, fret: 12},
         {string: 6, fret: 24},
@@ -61,7 +61,7 @@ describe("tabNoteAscending", () => {
         Note.A,
         Note.A,
         Note.A,
-      ], 3, 5)).toEqual([
+      ], { notesPerString: 3, startingString: 5 })).toEqual([
         {string: 5, fret: 0},
         {string: 5, fret: 12},
         {string: 5, fret: 24},
@@ -73,7 +73,7 @@ describe("tabNoteAscending", () => {
         Note.D,
         Note.D,
         Note.D,
-      ], 3, 4)).toEqual([
+      ], { notesPerString: 3, startingString: 4 })).toEqual([
         {string: 4, fret: 0},
         {string: 4, fret: 12},
         {string: 4, fret: 24},
@@ -85,7 +85,7 @@ describe("tabNoteAscending", () => {
         Note.G,
         Note.G,
         Note.G,
-      ], 3, 3)).toEqual([
+      ], { notesPerString: 3, startingString: 3 })).toEqual([
         {string: 3, fret: 0},
         {string: 3, fret: 12},
         {string: 3, fret: 24},
@@ -97,7 +97,7 @@ describe("tabNoteAscending", () => {
         Note.B,
         Note.B,
         Note.B,
-      ], 3, 2)).toEqual([
+      ], { notesPerString: 3, startingString: 2 })).toEqual([
         {string: 2, fret: 0},
         {string: 2, fret: 12},
         {string: 2, fret: 24},
@@ -109,7 +109,7 @@ describe("tabNoteAscending", () => {
         Note.E,
         Note.E,
         Note.E,
-      ], 3, 1)).toEqual([
+      ], { notesPerString: 3, startingString: 1 })).toEqual([
         {string: 1, fret: 0},
         {string: 1, fret: 12},
         {string: 1, fret: 24},
@@ -127,7 +127,7 @@ describe("tabNoteAscending", () => {
         Note.E,
         Note.E,
         Note.E,
-      ], 3, 3)).toEqual([
+      ], { notesPerString: 3, startingString: 3 })).toEqual([
         {string: 3, fret: 0},
         {string: 3, fret: 12},
         {string: 3, fret: 24},
@@ -155,7 +155,7 @@ describe("tabNoteAscending", () => {
       Note.E,
       Note.E,
       Note.E,
-    ], 2, 6)).toEqual([
+    ], { notesPerString: 2, startingString: 6 })).toEqual([
       {string: 6, fret: 0},
       {string: 6, fret: 12},
       {string: 5, fret: 7},
@@ -178,7 +178,7 @@ describe("tabNoteAscending", () => {
       Note.D,
       Note.E,
       Note.F,
-    ], 1)).toEqual([
+    ], { notesPerString: 1 })).toEqual([
       {string: 6, fret: 8},
       {string: 5, fret: 5},
       {string: 4, fret: 2},
@@ -222,7 +222,7 @@ describe("tabNoteAscending", () => {
       Note.Bb,
       Note.Eb,
       Note.E,
-    ], 3, 2)).toEqual([
+    ], { notesPerString: 3, startingString: 2 })).toEqual([
       {string: 2, fret: 1},
       {string: 2, fret: 3},
       {string: 2, fret: 5},
@@ -244,7 +244,65 @@ describe("tabNoteAscending", () => {
         Note.D,
         Note.D,
         Note.G,
-      ], 4, 4)
+      ], { notesPerString: 4, startingString: 4 })
     })).toThrow()
+  })
+
+  describe("with trimExcess: true", () => {
+    it("stops once the top string has notesPerString notes", () => {
+      expect(tabNotesNPerString([
+        Note.C,
+        Note.D,
+        Note.E,
+        Note.F,
+        Note.G,
+        Note.A,
+        Note.B,
+        Note.C,
+        Note.F,
+        Note.Bb,
+        Note.Eb,
+        Note.E,
+      ], { notesPerString: 3, startingString: 2, trimExcess: true })).toEqual([
+        {string: 2, fret: 1},
+        {string: 2, fret: 3},
+        {string: 2, fret: 5},
+        {string: 1, fret: 1},
+        {string: 1, fret: 3},
+        {string: 1, fret: 5},
+      ])
+    })
+
+    it("returns all notes when input length equals capacity", () => {
+      expect(tabNotesNPerString([
+        Note.C,
+        Note.D,
+        Note.E,
+        Note.F,
+        Note.G,
+        Note.A,
+      ], { notesPerString: 3, startingString: 2, trimExcess: true })).toEqual([
+        {string: 2, fret: 1},
+        {string: 2, fret: 3},
+        {string: 2, fret: 5},
+        {string: 1, fret: 1},
+        {string: 1, fret: 3},
+        {string: 1, fret: 5},
+      ])
+    })
+
+    it("is a no-op when input length is below capacity", () => {
+      expect(tabNotesNPerString([
+        Note.C,
+        Note.D,
+        Note.E,
+        Note.F,
+      ], { notesPerString: 1, trimExcess: true })).toEqual([
+        {string: 6, fret: 8},
+        {string: 5, fret: 5},
+        {string: 4, fret: 2},
+        {string: 3, fret: 10},
+      ])
+    })
   })
 })

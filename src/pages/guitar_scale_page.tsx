@@ -40,7 +40,10 @@ export function GuitarScalePage() {
 
   const scaleTab = tabNotesNPerString(
     notes,
-    3,
+    {
+      notesPerString: 3,
+      trimExcess: true,
+    },
   )
 
 

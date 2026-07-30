@@ -111,8 +111,10 @@ function FingerChart({chord, inversion}: {chord: VoiceLeadingChord, inversion: n
 
   const tabNotes = tabNotesNPerString(
     notes,
-    1,
-    5,
+    {
+      notesPerString: 1,
+      startingString: 5,
+    },
   )
 
   return (

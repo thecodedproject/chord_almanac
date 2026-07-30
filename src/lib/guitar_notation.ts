@@ -13,11 +13,22 @@ export enum TabNotesDirection {
   Descending = "descending",
 }
 
+export interface TabNotesNPerStringOptions {
+  notesPerString?: number
+  startingString?: number
+  trimExcess?: boolean
+}
+
 export function tabNotesNPerString(
   notes: Note[],
-  notesPerString: number = 3,
-  startingString: number = 6,
+  options: TabNotesNPerStringOptions = {},
 ): TabNote[] {
+
+  const {
+    notesPerString = 3,
+    startingString = 6,
+    trimExcess = false,
+  } = options
 
   // standard guitar tuning
   const tuning: Note[] = [
@@ -29,11 +40,15 @@ export function tabNotesNPerString(
     Note.E,
   ]
 
+  const notesToTab = trimExcess
+    ? notes.slice(0, notesPerString * startingString)
+    : notes
+
   let currentString = startingString
   let currentStringPreviousFret = 0
   let iCurrentStringNote = 0
 
-  var retVal = notes.map((n, i) => {
+  var retVal = notesToTab.map((n, i) => {
 
     if (currentString == 1 && iCurrentStringNote > 0) {
       iCurrentStringNote++
