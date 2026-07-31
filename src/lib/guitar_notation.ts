@@ -17,7 +17,30 @@ export interface TabNotesNPerStringOptions {
   notesPerString?: number
   startingString?: number
   trimExcess?: boolean
+  tuning?: Note[]
 }
+
+// standard guitar tunings, from lowest string to highest
+export const sixStringTuning: Note[] = [
+  Note.E,
+  Note.A,
+  Note.D,
+  Note.G,
+  Note.B,
+  Note.E,
+]
+
+export const sevenStringTuning: Note[] = [
+  Note.B,
+  ...sixStringTuning,
+]
+
+export const eightStringTuning: Note[] = [
+  Note.Gb,
+  ...sevenStringTuning,
+]
+
+export const defaultTuning = sixStringTuning
 
 export function tabNotesNPerString(
   notes: Note[],
@@ -26,19 +49,10 @@ export function tabNotesNPerString(
 
   const {
     notesPerString = 3,
-    startingString = 6,
+    tuning = defaultTuning,
+    startingString = tuning.length,
     trimExcess = false,
   } = options
-
-  // standard guitar tuning
-  const tuning: Note[] = [
-    Note.E,
-    Note.A,
-    Note.D,
-    Note.G,
-    Note.B,
-    Note.E,
-  ]
 
   const notesToTab = trimExcess
     ? notes.slice(0, notesPerString * startingString)

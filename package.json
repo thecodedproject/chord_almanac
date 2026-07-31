@@ -8,6 +8,7 @@
   "scripts": {
     "build": "webpack",
     "serve": "http-server dist",
+    "start": "yarn build && yarn serve",
     "test": "jest"
   },
   "dependencies": {

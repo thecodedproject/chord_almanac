@@ -8,6 +8,7 @@ import {
 
 interface ChartProps extends CSSProperties {
   "--num-frets": number;
+  "--num-strings": number;
 }
 
 interface StringProps extends CSSProperties {
@@ -20,7 +21,9 @@ interface FretProps extends CSSProperties {
 
 interface NoteProps extends StringProps, FretProps {}
 
-export function GuitarFingerChart({tabNotes}: {tabNotes: TabNote[]}) {
+export function GuitarFingerChart(
+  {tabNotes, numStrings = 6}: {tabNotes: TabNote[], numStrings?: number}
+) {
 
   let minFret = 24
   let maxFret = 0
@@ -42,12 +45,15 @@ export function GuitarFingerChart({tabNotes}: {tabNotes: TabNote[]}) {
   })
 
   return (
-    <div className="guitarFingerChart" style={{"--num-frets": numFrets} as ChartProps}>
+    <div
+      className="guitarFingerChart"
+      style={{"--num-frets": numFrets, "--num-strings": numStrings} as ChartProps}
+    >
 
       <FretLabels bottomFret={minFret} topFret={maxFret} />
 
       <div className="body">
-        <Strings />
+        <Strings numStrings={numStrings} />
         <FretWires numFrets={numFrets} />
         <FretMarkers bottomFret={minFret} topFret={maxFret} />
         {fretNotes}
@@ -147,15 +153,16 @@ function FretMarkers(
   return retVal
 }
 
-function Strings() {
+function Strings({numStrings}: {numStrings: number}) {
   return (
     <>
-      <div className="string" style={{"--string": 1} as StringProps}></div>
-      <div className="string" style={{"--string": 2} as StringProps}></div>
-      <div className="string" style={{"--string": 3} as StringProps}></div>
-      <div className="string" style={{"--string": 4} as StringProps}></div>
-      <div className="string" style={{"--string": 5} as StringProps}></div>
-      <div className="string" style={{"--string": 6} as StringProps}></div>
+      {[...Array(numStrings)].map((_, i) => (
+        <div
+          className="string"
+          style={{"--string": i + 1} as StringProps}
+          key={i + 1}
+        ></div>
+      ))}
     </>
   )
 }
