@@ -38,6 +38,7 @@ export enum ScaleType {
   Major = "Major",
   MelodicMinor = "MelodicMinor",
   HarmonicMinor = "HarmonicMinor",
+  HarmonicMajor = "HarmonicMajor",
 }
 
 export enum DiatonicInterval {
@@ -73,11 +74,20 @@ export enum Mode {
   // Harmonic minor modes
   Ionian_sharp5 = "Ionian_sharp5",
   Dorian_sharp4 = "Dorian_sharp4",
-  Phrygian_sharp3 = "Phrygian_sharp3",
+  Phrygian_natural3 = "Phrygian_natural3",
   Lydian_sharp2 = "Lydian_sharp2",
   Mixolydian_sharp1 = "Mixolydian_sharp1",
-  Aeolian_sharp7 = "Aeolian_sharp7",
-  Locrian_sharp6 = "Locrian_sharp6",
+  Aeolian_natural7 = "Aeolian_natural7",
+  Locrian_natural6 = "Locrian_natural6",
+
+  // Harmonic major modes
+  Ionian_b6 = "Ionian_b6",
+  Dorian_b5 = "Dorian_b5",
+  Phrygian_b4 = "Phrygian_b4",
+  Lydian_b3 = "Lydian_b3",
+  Mixolydian_b2 = "Mixolydian_b2",
+  Aeolian_b1 = "Aeolian_b1",
+  Locrian_bb7 = "Locrian_bb7",
 }
 
 export interface Scale {
@@ -113,12 +123,21 @@ export function scaleTypeForMode(mode: Mode): ScaleType {
 
     case Mode.Ionian_sharp5:
     case Mode.Dorian_sharp4:
-    case Mode.Phrygian_sharp3:
+    case Mode.Phrygian_natural3:
     case Mode.Lydian_sharp2:
     case Mode.Mixolydian_sharp1:
-    case Mode.Aeolian_sharp7:
-    case Mode.Locrian_sharp6:
+    case Mode.Aeolian_natural7:
+    case Mode.Locrian_natural6:
       return ScaleType.HarmonicMinor
+
+    case Mode.Ionian_b6:
+    case Mode.Dorian_b5:
+    case Mode.Phrygian_b4:
+    case Mode.Lydian_b3:
+    case Mode.Mixolydian_b2:
+    case Mode.Aeolian_b1:
+    case Mode.Locrian_bb7:
+      return ScaleType.HarmonicMajor
 
     default: throw RangeError("unknown mode: " + mode)
   }
@@ -276,7 +295,7 @@ export function diatonicScaleIntervals(mode: Mode): Interval[] {
       Interval.MinorSecond,
       Interval.MajorSecond,
     ]
-    case Mode.Phrygian_sharp3: return [
+    case Mode.Phrygian_natural3: return [
       Interval.MinorSecond,
       Interval.MinorThird,
       Interval.MinorSecond,
@@ -303,7 +322,7 @@ export function diatonicScaleIntervals(mode: Mode): Interval[] {
       Interval.MinorSecond,
       Interval.MinorThird,
     ]
-    case Mode.Aeolian_sharp7: return [
+    case Mode.Aeolian_natural7: return [
       Interval.MajorSecond,
       Interval.MinorSecond,
       Interval.MajorSecond,
@@ -312,7 +331,7 @@ export function diatonicScaleIntervals(mode: Mode): Interval[] {
       Interval.MinorThird,
       Interval.MinorSecond,
     ]
-    case Mode.Locrian_sharp6: return [
+    case Mode.Locrian_natural6: return [
       Interval.MinorSecond,
       Interval.MajorSecond,
       Interval.MajorSecond,
@@ -320,6 +339,71 @@ export function diatonicScaleIntervals(mode: Mode): Interval[] {
       Interval.MinorThird,
       Interval.MinorSecond,
       Interval.MajorSecond,
+    ]
+
+    // Harmonic major modes
+    case Mode.Ionian_b6: return [
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+    ]
+    case Mode.Dorian_b5: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Phrygian_b4: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Lydian_b3: return [
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Mixolydian_b2: return [
+      Interval.MinorSecond,
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+    ]
+    case Mode.Aeolian_b1: return [
+      Interval.MinorThird,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+    ]
+    case Mode.Locrian_bb7: return [
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MajorSecond,
+      Interval.MinorSecond,
+      Interval.MinorThird,
     ]
 
     default: throw RangeError("cannot get scale intervals for unknown diatonic mode:" + mode)
@@ -431,6 +515,7 @@ export function scaleFromIonianRoot(
       case ScaleType.Major: return diatonicScale(ionianRoot, Mode.Ionian)
       case ScaleType.MelodicMinor: return diatonicScale(ionianRoot, Mode.Ionian_b3)
       case ScaleType.HarmonicMinor: return diatonicScale(ionianRoot, Mode.Ionian_sharp5)
+      case ScaleType.HarmonicMajor: return diatonicScale(ionianRoot, Mode.Ionian_b6)
       default: throw RangeError("cannot get scale from ionian root for unknown diatonic scale type: " + scaleType)
     }
   })()

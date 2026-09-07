@@ -555,11 +555,18 @@ describe("scaleTypeForMode", () => {
       [Mode.Locrian_b4, ScaleType.MelodicMinor],
       [Mode.Ionian_sharp5, ScaleType.HarmonicMinor],
       [Mode.Dorian_sharp4, ScaleType.HarmonicMinor],
-      [Mode.Phrygian_sharp3, ScaleType.HarmonicMinor],
+      [Mode.Phrygian_natural3, ScaleType.HarmonicMinor],
       [Mode.Lydian_sharp2, ScaleType.HarmonicMinor],
       [Mode.Mixolydian_sharp1, ScaleType.HarmonicMinor],
-      [Mode.Aeolian_sharp7, ScaleType.HarmonicMinor],
-      [Mode.Locrian_sharp6, ScaleType.HarmonicMinor],
+      [Mode.Aeolian_natural7, ScaleType.HarmonicMinor],
+      [Mode.Locrian_natural6, ScaleType.HarmonicMinor],
+      [Mode.Ionian_b6, ScaleType.HarmonicMajor],
+      [Mode.Dorian_b5, ScaleType.HarmonicMajor],
+      [Mode.Phrygian_b4, ScaleType.HarmonicMajor],
+      [Mode.Lydian_b3, ScaleType.HarmonicMajor],
+      [Mode.Mixolydian_b2, ScaleType.HarmonicMajor],
+      [Mode.Aeolian_b1, ScaleType.HarmonicMajor],
+      [Mode.Locrian_bb7, ScaleType.HarmonicMajor],
     ],
   )("returns correct scale type for %s", (
     mode,
@@ -620,7 +627,7 @@ describe("diatonicScale", () => {
       ],
       [
         Note.E,
-        Mode.Phrygian_sharp3,
+        Mode.Phrygian_natural3,
         [Note.E, Note.F, Note.Ab, Note.A, Note.B, Note.C, Note.D],
       ],
       [
@@ -635,13 +642,49 @@ describe("diatonicScale", () => {
       ],
       [
         Note.A,
-        Mode.Aeolian_sharp7,
+        Mode.Aeolian_natural7,
         [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab],
       ],
       [
         Note.B,
-        Mode.Locrian_sharp6,
+        Mode.Locrian_natural6,
         [Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab, Note.A],
+      ],
+
+      [
+        Note.C,
+        Mode.Ionian_b6,
+        [Note.C, Note.D, Note.E, Note.F, Note.G, Note.Ab, Note.B],
+      ],
+      [
+        Note.D,
+        Mode.Dorian_b5,
+        [Note.D, Note.E, Note.F, Note.G, Note.Ab, Note.B, Note.C],
+      ],
+      [
+        Note.E,
+        Mode.Phrygian_b4,
+        [Note.E, Note.F, Note.G, Note.Ab, Note.B, Note.C, Note.D],
+      ],
+      [
+        Note.F,
+        Mode.Lydian_b3,
+        [Note.F, Note.G, Note.Ab, Note.B, Note.C, Note.D, Note.E],
+      ],
+      [
+        Note.G,
+        Mode.Mixolydian_b2,
+        [Note.G, Note.Ab, Note.B, Note.C, Note.D, Note.E, Note.F],
+      ],
+      [
+        Note.Ab,
+        Mode.Aeolian_b1,
+        [Note.Ab, Note.B, Note.C, Note.D, Note.E, Note.F, Note.G],
+      ],
+      [
+        Note.B,
+        Mode.Locrian_bb7,
+        [Note.B, Note.C, Note.D, Note.E, Note.F, Note.G, Note.Ab],
       ],
     ],
   )("gives the correct notes for one octave %s %s", (
@@ -685,11 +728,26 @@ describe("scaleFromIonianRoot", () => {
         [Note.C, Note.D, Note.E, Note.F, Note.Ab, Note.A, Note.B],
       ],
       [
-        "CHarmonicMinor_Aeolian_sharp7",
+        "CHarmonicMinor_Aeolian_natural7",
         Note.C,
         ScaleType.HarmonicMinor,
         6,
         [Note.A, Note.B, Note.C, Note.D, Note.E, Note.F, Note.Ab],
+      ],
+
+      [
+        "CHarmonicMajor_Ionian_b6",
+        Note.C,
+        ScaleType.HarmonicMajor,
+        1,
+        [Note.C, Note.D, Note.E, Note.F, Note.G, Note.Ab, Note.B],
+      ],
+      [
+        "CHarmonicMajor_Aeolian_b1",
+        Note.C,
+        ScaleType.HarmonicMajor,
+        6,
+        [Note.Ab, Note.B, Note.C, Note.D, Note.E, Note.F, Note.G],
       ],
     ],
   )("gives the correct notes for one octave %s", (

@@ -43,6 +43,7 @@ export function ScaleSelector({props}: {props: IScaleProps}) {
         <button onClick={handleTypeClick(ScaleType.Major)}>Major</button>
         <button onClick={handleTypeClick(ScaleType.MelodicMinor)}>Melodic minor</button>
         <button onClick={handleTypeClick(ScaleType.HarmonicMinor)}>Harmonic minor</button>
+        <button onClick={handleTypeClick(ScaleType.HarmonicMajor)}>Harmonic major</button>
       </div>
 
       <div className="rootSelector">
