@@ -5,12 +5,18 @@ import {
   Note,
   Scale,
   ScaleType,
+  TetradVoicing,
   VoiceLeadingChord,
   createCycle,
   diatonicIntervalBetweenScaleDegreesUpwards,
   diatonicScale,
   diatonicScaleIntervals,
+  dropVoices,
   intervalBetweenNotesUpwards,
+  invertVoicing,
+  normaliseVoicing,
+  numTetradVoices,
+  raiseVoices,
   scaleDegree,
   scaleDegreeNotes,
   scaleFromIonianRoot,
@@ -21,6 +27,8 @@ import {
   shiftChordToNextNearestInversion,
   shiftNote,
   shiftScaleDiatonically,
+  tetradVoicing,
+  tetradVoicings,
   vlChordNotes,
 } from "./chord_anthology"
 
@@ -1237,4 +1245,190 @@ describe("POC creating cycle2", () => {
 
   })
 
+})
+
+describe("normaliseVoicing", () => {
+
+  const cMaj = diatonicScale(Note.C, Mode.Ionian)
+
+  it.each(
+    [
+      ["a voicing already in the first octave", [1,3,5,7], [1,3,5,7]],
+      ["a voicing sitting above the first octave", [8,10,12,14], [1,3,5,7]],
+      ["a voicing sitting below the first octave", [-4,-2,1,7], [3,5,8,14]],
+      ["a voicing straddling the first octave", [0,3,5,8], [7,10,12,15]],
+    ],
+  )("brings the lowest voice into the first octave for %s", (
+    _,
+    tones,
+    expectedTones,
+  ) => {
+    expect(normaliseVoicing({scale: cMaj, tones: tones})).toEqual({
+      scale: cMaj,
+      tones: expectedTones,
+    })
+  })
+
+  it("moves every voice by the same number of octaves, keeping the shape of the voicing", () => {
+    const tones = [-4,-2,1,7]
+    const normalised = normaliseVoicing({scale: cMaj, tones: tones}).tones
+
+    const shifts = normalised.map((t, i) => t - tones[i])
+    expect(shifts).toEqual([7,7,7,7])
+  })
+})
+
+describe("invertVoicing", () => {
+
+  const cMaj7: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5,7],
+  }
+
+  it.each(
+    [
+      [0, [1,3,5,7],   [Note.C, Note.E, Note.G, Note.B]],
+      [1, [3,5,7,8],   [Note.E, Note.G, Note.B, Note.C]],
+      [2, [5,7,8,10],  [Note.G, Note.B, Note.C, Note.E]],
+      [3, [7,8,10,12], [Note.B, Note.C, Note.E, Note.G]],
+    ],
+  )("takes the lowest voice up an octave %s times", (
+    numInversions,
+    expectedTones,
+    expectedNotes,
+  ) => {
+    const inverted = invertVoicing(cMaj7, numInversions)
+    expect(inverted.tones).toEqual(expectedTones)
+    expect(vlChordNotes(inverted)).toEqual(expectedNotes)
+  })
+
+  it("returns to the original voicing after a full turn of inversions", () => {
+    expect(invertVoicing(cMaj7, 4)).toEqual(cMaj7)
+  })
+
+  it("throws for a negative number of inversions", () => {
+    expect(() => invertVoicing(cMaj7, -1)).toThrow(RangeError)
+  })
+})
+
+describe("dropVoices", () => {
+
+  const cMaj7: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5,7],
+  }
+
+  it("drops the second voice from the top to the bottom", () => {
+    expect(vlChordNotes(dropVoices(cMaj7, [2]))).toEqual(
+      [Note.G, Note.C, Note.E, Note.B],
+    )
+  })
+
+  it("drops the third voice from the top to the bottom", () => {
+    expect(vlChordNotes(dropVoices(cMaj7, [3]))).toEqual(
+      [Note.E, Note.C, Note.G, Note.B],
+    )
+  })
+
+  it("drops the second and third voices from the top together", () => {
+    expect(vlChordNotes(dropVoices(cMaj7, [2,3]))).toEqual(
+      [Note.E, Note.G, Note.C, Note.B],
+    )
+  })
+
+  it("throws when the voicing has no such voice", () => {
+    expect(() => dropVoices(cMaj7, [5])).toThrow(RangeError)
+    expect(() => dropVoices(cMaj7, [0])).toThrow(RangeError)
+  })
+})
+
+describe("raiseVoices", () => {
+
+  const cMaj7: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5,7],
+  }
+
+  it("raises the second voice from the bottom to the top", () => {
+    expect(vlChordNotes(raiseVoices(cMaj7, [2]))).toEqual(
+      [Note.C, Note.G, Note.B, Note.E],
+    )
+  })
+
+  it("raises the third voice from the bottom to the top", () => {
+    expect(vlChordNotes(raiseVoices(cMaj7, [3]))).toEqual(
+      [Note.C, Note.E, Note.B, Note.G],
+    )
+  })
+
+  it("throws when the voicing has no such voice", () => {
+    expect(() => raiseVoices(cMaj7, [5])).toThrow(RangeError)
+    expect(() => raiseVoices(cMaj7, [0])).toThrow(RangeError)
+  })
+})
+
+describe("tetradVoicing", () => {
+
+  const cMaj7: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5,7],
+  }
+
+  // the tones are checked as well as the notes, so that voicings which stack the same
+  // notes in the same order but at different octaves are told apart
+  it.each(
+    [
+      [TetradVoicing.Close, 0, [1,3,5,7],     [Note.C, Note.E, Note.G, Note.B]],
+      [TetradVoicing.Close, 1, [3,5,7,8],     [Note.E, Note.G, Note.B, Note.C]],
+      [TetradVoicing.Close, 2, [5,7,8,10],    [Note.G, Note.B, Note.C, Note.E]],
+      [TetradVoicing.Close, 3, [7,8,10,12],   [Note.B, Note.C, Note.E, Note.G]],
+
+      [TetradVoicing.Drop2, 0, [5,8,10,14],   [Note.G, Note.C, Note.E, Note.B]],
+      [TetradVoicing.Drop2, 1, [7,10,12,15],  [Note.B, Note.E, Note.G, Note.C]],
+      [TetradVoicing.Drop2, 2, [1,5,7,10],    [Note.C, Note.G, Note.B, Note.E]],
+      [TetradVoicing.Drop2, 3, [3,7,8,12],    [Note.E, Note.B, Note.C, Note.G]],
+
+      [TetradVoicing.Drop3, 0, [3,8,12,14],   [Note.E, Note.C, Note.G, Note.B]],
+      [TetradVoicing.Drop3, 1, [5,10,14,15],  [Note.G, Note.E, Note.B, Note.C]],
+      [TetradVoicing.Drop3, 2, [7,12,15,17],  [Note.B, Note.G, Note.C, Note.E]],
+      [TetradVoicing.Drop3, 3, [1,7,10,12],   [Note.C, Note.B, Note.E, Note.G]],
+
+      [TetradVoicing.Drop2And3, 0, [3,5,8,14],   [Note.E, Note.G, Note.C, Note.B]],
+      [TetradVoicing.Drop2And3, 1, [5,7,10,15],  [Note.G, Note.B, Note.E, Note.C]],
+      [TetradVoicing.Drop2And3, 2, [7,8,12,17],  [Note.B, Note.C, Note.G, Note.E]],
+      [TetradVoicing.Drop2And3, 3, [1,3,7,12],   [Note.C, Note.E, Note.B, Note.G]],
+
+      [TetradVoicing.Drop2And4, 0, [1,5,10,14],  [Note.C, Note.G, Note.E, Note.B]],
+      [TetradVoicing.Drop2And4, 1, [3,7,12,15],  [Note.E, Note.B, Note.G, Note.C]],
+      [TetradVoicing.Drop2And4, 2, [5,8,14,17],  [Note.G, Note.C, Note.B, Note.E]],
+      [TetradVoicing.Drop2And4, 3, [7,10,15,19], [Note.B, Note.E, Note.C, Note.G]],
+
+      [TetradVoicing.Spread, 0, [5,10,15,21],  [Note.G, Note.E, Note.C, Note.B]],
+      [TetradVoicing.Spread, 1, [7,12,17,22],  [Note.B, Note.G, Note.E, Note.C]],
+      [TetradVoicing.Spread, 2, [1,7,12,17],   [Note.C, Note.B, Note.G, Note.E]],
+      [TetradVoicing.Spread, 3, [3,8,14,19],   [Note.E, Note.C, Note.B, Note.G]],
+    ],
+  )("gives the %s voicing in inversion %s", (
+    voicing,
+    inversion,
+    expectedTones,
+    expectedNotes,
+  ) => {
+    const voiced = tetradVoicing(cMaj7, voicing, inversion)
+    expect(voiced.tones).toEqual(expectedTones)
+    expect(vlChordNotes(voiced)).toEqual(expectedNotes)
+  })
+
+  it("gives a voicing per inversion for every voicing", () => {
+    expect(tetradVoicings.length).toEqual(6)
+    expect(numTetradVoices).toEqual(4)
+  })
+
+  it("throws when the chord is not a tetrad", () => {
+    const cMaj: VoiceLeadingChord = {
+      scale: diatonicScale(Note.C, Mode.Ionian),
+      tones: [1,3,5],
+    }
+    expect(() => tetradVoicing(cMaj, TetradVoicing.Drop2, 0)).toThrow(RangeError)
+  })
 })

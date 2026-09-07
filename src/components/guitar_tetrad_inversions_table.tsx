@@ -1,132 +1,147 @@
 import "./guitar_tetrad_inversions_table.css"
 
-import {CSSProperties} from "react";
-
-import {cloneDeep} from "lodash"
+import {CSSProperties, Fragment} from "react";
 
 import {
   Mode,
   Note,
+  TetradVoicing,
   VoiceLeadingChord,
   diatonicScale,
-  vlChordNotes,
+  numTetradVoices,
+  tetradVoicing,
+  tetradVoicings,
 } from '../lib/chord_anthology'
 
 import {
-  tabNotesNPerString,
+  TabNote,
+  tabNotesForVoicing,
 } from '../lib/guitar_notation'
 
 import {
   GuitarFingerChart,
 } from './guitar_finger_chart'
 
-interface VoiceProps extends CSSProperties {
-  "--voice": number;
+interface VoicingProps extends CSSProperties {
+  "--voicing": number;
 }
 
 interface InversionProps extends CSSProperties {
   "--inversion": number;
 }
 
-interface FingerChartProps extends VoiceProps, InversionProps {}
+interface FingerChartProps extends VoicingProps, InversionProps {}
+
+const voicingLabels: Record<TetradVoicing, string> = {
+  [TetradVoicing.Close]: "Close",
+  [TetradVoicing.Drop2]: "Drop 2",
+  [TetradVoicing.Drop3]: "Drop 3",
+  [TetradVoicing.Drop2And3]: "Drop 2+3",
+  [TetradVoicing.Drop2And4]: "Drop 2+4",
+  [TetradVoicing.Spread]: "Spread",
+}
+
+// there is one inversion per chord voice; the first is the chord in root position
+const inversionLabels = ["Root", "1st", "2nd", "3rd"]
+
+// The tetrad is voiced on the four strings below (and including) this one. The widest
+// voicings span a little over two octaves, which only fits from the lowest string.
+const startingString = 6
 
 export function GuitarTetradInversionsTable() {
 
-  const notes = [
-    {string: 1, fret: 1},
-    {string: 2, fret: 2},
-    {string: 3, fret: 3},
-    {string: 4, fret: 4},
-  ]
-
+  //TODO pass chord to table
   const chord: VoiceLeadingChord = {
     scale: diatonicScale(Note.C, Mode.Ionian),
-    tones: [1,5,7,3],
+    tones: [1,3,5,7],
   }
+
+  const inversions = [...Array(numTetradVoices)].map((_, i) => i)
 
   return (
     <>
       <div className="guitarTetradInversionsTable">
 
-        <div className="voiceLabel" style={{"--voice": 1} as VoiceProps}>
-          Voice 1
-        </div>
-        <div className="voiceLabel" style={{"--voice": 2} as VoiceProps}>
-          Voice 2
-        </div>
-        <div className="voiceLabel" style={{"--voice": 3} as VoiceProps}>
-          Voice 3
-        </div>
+        {inversions.map((inversion) => (
+          <div
+            className="inversionLabel"
+            style={{"--inversion": inversion+1} as InversionProps}
+            key={inversion}
+          >
+            {inversionLabels[inversion]}
+          </div>
+        ))}
 
-        <div className="inversionLabel" style={{"--inversion": 1} as InversionProps}>
-          Inversion 1
-        </div>
-        <div className="inversionLabel" style={{"--inversion": 2} as InversionProps}>
-          Inversion 2
-        </div>
-        <div className="inversionLabel" style={{"--inversion": 3} as InversionProps}>
-          Inversion 3
-        </div>
+        {tetradVoicings.map((voicing, iVoicing) => (
+          <Fragment key={voicing}>
+            <div
+              className="voicingLabel"
+              style={{"--voicing": iVoicing+1} as VoicingProps}
+            >
+              {voicingLabels[voicing]}
+            </div>
+            {inversions.map((inversion) => (
+              <FingerChart
+                chord={chord}
+                voicing={voicing}
+                voicingRow={iVoicing+1}
+                inversion={inversion}
+                key={inversion}
+              />
+            ))}
+          </Fragment>
+        ))}
 
-
-
-        <div
-          className="fingerChart"
-          style={{
-            "--voice": 1,
-            "--inversion": 1,
-          } as FingerChartProps}>
-          <GuitarFingerChart tabNotes={notes}/>
-        </div>
-        <div
-          className="fingerChart"
-          style={{
-            "--voice": 2,
-            "--inversion": 2,
-          } as FingerChartProps}>
-          <GuitarFingerChart tabNotes={notes}/>
-        </div>
-
-        <FingerChart chord={chord} inversion={0}/>
-        <FingerChart chord={chord} inversion={1}/>
-        <FingerChart chord={chord} inversion={2}/>
-        <FingerChart chord={chord} inversion={3}/>
       </div>
     </>
   )
 }
 
-function FingerChart({chord, inversion}: {chord: VoiceLeadingChord, inversion: number}) {
+function FingerChart(
+  {chord, voicing, voicingRow, inversion}: {
+    chord: VoiceLeadingChord,
+    voicing: TetradVoicing,
+    voicingRow: number,
+    inversion: number,
+  }
+) {
 
-  let invertedChord = cloneDeep(chord)
-  for (let i=0; i < inversion; i++) {
-    const t = invertedChord.tones.shift()
-    if (t == undefined) {
-      throw new RangeError("got undefined element whilst inverting chordCopy tones")
+  // a voicing spread over more than the neck can reach cannot be played on these
+  // strings; show the cell as empty rather than losing the rest of the table
+  let tabNotes: TabNote[]
+  try {
+    tabNotes = tabNotesForVoicing(
+      tetradVoicing(chord, voicing, inversion),
+      {
+        startingString: startingString,
+      },
+    )
+  } catch (e) {
+    if (!(e instanceof RangeError)) {
+      throw e
     }
-    invertedChord.tones.push(t)
+    return (
+      <div
+        className="fingerChart fingerChartUnplayable"
+        style={{
+          "--voicing": voicingRow,
+          "--inversion": inversion+1,
+        } as FingerChartProps}
+      >
+        does not fit on the neck
+      </div>
+    )
   }
 
-  const notes = vlChordNotes(invertedChord)
-
-  const tabNotes = tabNotesNPerString(
-    notes,
-    {
-      notesPerString: 1,
-      startingString: 5,
-    },
-  )
-
   return (
-    <>
-      <div
-        className="fingerChart"
-        style={{
-          "--voice": 3,
-          "--inversion": inversion+1,
-        } as FingerChartProps}>
-        <GuitarFingerChart tabNotes={tabNotes}/>
-      </div>
-    </>
+    <div
+      className="fingerChart"
+      style={{
+        "--voicing": voicingRow,
+        "--inversion": inversion+1,
+      } as FingerChartProps}
+    >
+      <GuitarFingerChart tabNotes={tabNotes}/>
+    </div>
   )
 }

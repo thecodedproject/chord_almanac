@@ -559,29 +559,55 @@ export function scaleDegreeNotes(
   return notes
 }
 
+export function semiTonesInInterval(i: Interval): number {
+  switch(i) {
+    case Interval.Unison: return 0
+    case Interval.MinorSecond: return 1
+    case Interval.MajorSecond: return 2
+    case Interval.MinorThird: return 3
+    case Interval.MajorThird: return 4
+    case Interval.Fourth: return 5
+    case Interval.DiminishedFifth: return 6
+    case Interval.PerfectFifth: return 7
+    case Interval.AugmentedFifth: return 8
+    case Interval.Sixth: return 9
+    case Interval.MinorSeven: return 10
+    case Interval.MajorSeven: return 11
+    default: throw RangeError("cannot convert unknown interval to number:" + i)
+  }
+}
+
+// semiTonesBetweenScaleDegreesUpwards returns the number of semitones from one scale
+// degree up to another.
+//
+// Unlike semiTonesBetweenNotesUpwards this counts whole octaves too, so degrees more
+// than an octave apart are more than 12 semitones apart.
+export function semiTonesBetweenScaleDegreesUpwards(
+  s: Scale,
+  lowerDegree: number,
+  upperDegree: number,
+): number {
+
+  if (lowerDegree < 1) {
+    throw new RangeError("cannot measure from scale degree below the first:" + lowerDegree)
+  }
+
+  if (upperDegree < lowerDegree) {
+    throw new RangeError("cannot measure upwards from scale degree " + lowerDegree + " to " + upperDegree)
+  }
+
+  let semiTones = 0
+  for (let d = lowerDegree; d < upperDegree; d++) {
+    semiTones += semiTonesInInterval(s.intervals[(d-1)%s.intervals.length])
+  }
+  return semiTones
+}
+
 export function shiftNote(n: Note, i: Interval): Note {
 
   let noteVal = noteAsNumber(n)
 
-  let intervalVal = (() => {
-    switch(i) {
-      case Interval.Unison: return 0
-      case Interval.MinorSecond: return 1
-      case Interval.MajorSecond: return 2
-      case Interval.MinorThird: return 3
-      case Interval.MajorThird: return 4
-      case Interval.Fourth: return 5
-      case Interval.DiminishedFifth: return 6
-      case Interval.PerfectFifth: return 7
-      case Interval.AugmentedFifth: return 8
-      case Interval.Sixth: return 9
-      case Interval.MinorSeven: return 10
-      case Interval.MajorSeven: return 11
-      default: throw RangeError("cannot convert unknown interval to number:" + i)
-    }
-  })()
-
-  noteVal = (noteVal + intervalVal)%12
+  noteVal = (noteVal + semiTonesInInterval(i))%12
 
   return (() => {
     switch(noteVal) {
@@ -701,6 +727,185 @@ export function shiftChordToNextNearestInversion(
   )
 
   return chordCopy
+}
+
+// A tetrad voicing describes the order the four voices of a tetrad are stacked in.
+//
+// `Close` is the four chord tones stacked as tightly as possible; the others drop one
+// or two of those voices below the rest. Between them the six voicings put the chord
+// tones in all 24 of the orders four voices can be stacked in - four per voicing, one
+// for each inversion.
+//
+// Dropping a voice which is already at the bottom, or dropping the bottom two voices
+// together, leaves the order they are stacked in unchanged - so drop 4 and drop 3+4
+// sound wider than a close voicing but are stacked in the same order as one, and are
+// not counted here.
+export enum TetradVoicing {
+  Close = "Close",
+  Drop2 = "Drop2",
+  Drop3 = "Drop3",
+  Drop2And3 = "Drop2And3",
+  Drop2And4 = "Drop2And4",
+  Spread = "Spread",
+}
+
+// tetradVoicings lists every voicing, in the order they are conventionally shown.
+export const tetradVoicings: TetradVoicing[] = [
+  TetradVoicing.Close,
+  TetradVoicing.Drop2,
+  TetradVoicing.Drop3,
+  TetradVoicing.Drop2And3,
+  TetradVoicing.Drop2And4,
+  TetradVoicing.Spread,
+]
+
+// numTetradVoices is the number of voices in a tetrad.
+export const numTetradVoices = 4
+
+function degreesPerOctave(c: VoiceLeadingChord): number {
+  return c.scale.intervals.length
+}
+
+function sortedVoices(c: VoiceLeadingChord): number[] {
+  return [...c.tones].sort((a, b) => a-b)
+}
+
+// normaliseVoicing shifts the whole voicing by whole octaves until its lowest voice
+// sits in the first octave of the scale.
+//
+// Every voice moves together, so neither the shape of the voicing nor the notes it
+// sounds are changed - only the scale degrees used to describe it.
+export function normaliseVoicing(c: VoiceLeadingChord): VoiceLeadingChord {
+
+  if (c.tones.length == 0) {
+    throw new RangeError("cannot normalise a voicing with no voices")
+  }
+
+  const octave = degreesPerOctave(c)
+  const octavesBelowFirst = Math.floor((Math.min(...c.tones) - 1)/octave)
+
+  return {
+    ...c,
+    tones: c.tones.map((t) => t - (octavesBelowFirst * octave)),
+  }
+}
+
+// invertVoicing inverts the voicing by taking its lowest voice up an octave, so that
+// the voicing sounds the same chord tones but sits on the next one up.
+//
+// e.g. the close tetrad [1,3,5,7] inverted once is [3,5,7,8]
+export function invertVoicing(c: VoiceLeadingChord, numInversions: number = 1): VoiceLeadingChord {
+
+  if (numInversions < 0) {
+    throw new RangeError("cannot invert a voicing a negative number of times:" + numInversions)
+  }
+
+  const octave = degreesPerOctave(c)
+  const voices = sortedVoices(c)
+
+  for (let i=0; i < numInversions; i++) {
+    const lowest = voices.shift()
+    if (lowest == undefined) {
+      throw new RangeError("got undefined voice whilst inverting voicing")
+    }
+    voices.push(lowest + octave)
+  }
+
+  return normaliseVoicing({...c, tones: voices})
+}
+
+// A VoiceShift moves one voice of a voicing by whole octaves. Voices are counted down
+// from the top of the voicing, so voice 1 is the highest sounding voice, and a negative
+// number of octaves takes the voice downwards.
+export interface VoiceShift {
+  voiceFromTop: number
+  octaves: number
+}
+
+// shiftVoicesByOctaves moves each of the given voices by its own number of octaves. The
+// shifts are all measured against the voicing as it is passed in, so a voice moving past
+// another does not change which voice the later shifts refer to.
+export function shiftVoicesByOctaves(
+  c: VoiceLeadingChord,
+  shifts: VoiceShift[],
+): VoiceLeadingChord {
+
+  const octave = degreesPerOctave(c)
+  const voices = sortedVoices(c)
+
+  for (const s of shifts) {
+    const i = voices.length - s.voiceFromTop
+    if (i < 0 || i >= voices.length) {
+      throw new RangeError("cannot shift voice; voicing of " + voices.length + " voices has no voice " + s.voiceFromTop + " from the top")
+    }
+    voices[i] = voices[i] + (s.octaves * octave)
+  }
+
+  voices.sort((a, b) => a-b)
+
+  return normaliseVoicing({...c, tones: voices})
+}
+
+// dropVoices takes the given voices down an octave. Voices are counted down from the
+// top of the voicing, so voice 1 is the highest sounding voice.
+//
+// e.g. dropping voice 2 of the close tetrad [1,3,5,7] takes the 5 to the bottom,
+//      giving the drop 2 voicing [5,1,3,7] (normalised to [5,8,10,14])
+export function dropVoices(c: VoiceLeadingChord, voicesFromTop: number[]): VoiceLeadingChord {
+  return shiftVoicesByOctaves(
+    c,
+    voicesFromTop.map((v) => ({voiceFromTop: v, octaves: -1})),
+  )
+}
+
+// raiseVoices takes the given voices up an octave. Voices are counted up from the
+// bottom of the voicing, so voice 1 is the lowest sounding voice.
+//
+// e.g. raising voice 2 of the close tetrad [1,3,5,7] takes the 3 to the top,
+//      giving the raise 2 voicing [1,5,7,3] (normalised to [1,5,7,10])
+export function raiseVoices(c: VoiceLeadingChord, voicesFromBottom: number[]): VoiceLeadingChord {
+  return shiftVoicesByOctaves(
+    c,
+    voicesFromBottom.map((v) => ({voiceFromTop: c.tones.length + 1 - v, octaves: 1})),
+  )
+}
+
+// applyTetradVoicing spreads the tetrad's voices out into the given voicing.
+export function applyTetradVoicing(c: VoiceLeadingChord, voicing: TetradVoicing): VoiceLeadingChord {
+
+  switch(voicing) {
+    case TetradVoicing.Close: return normaliseVoicing({...c, tones: sortedVoices(c)})
+    case TetradVoicing.Drop2: return dropVoices(c, [2])
+    case TetradVoicing.Drop3: return dropVoices(c, [3])
+    case TetradVoicing.Drop2And3: return dropVoices(c, [2,3])
+    case TetradVoicing.Drop2And4: return dropVoices(c, [2,4])
+
+    // the widest voicing: dropping voice 2 two octaves and voice 3 one octave turns the
+    // close voicing upside down, stacking the chord tones in sixths rather than thirds.
+    // No combination of single octave drops reaches this order.
+    case TetradVoicing.Spread: return shiftVoicesByOctaves(c, [
+      {voiceFromTop: 2, octaves: -2},
+      {voiceFromTop: 3, octaves: -1},
+    ])
+    default: throw RangeError("cannot voice tetrad for unknown voicing:" + voicing)
+  }
+}
+
+// tetradVoicing returns the given inversion of the given voicing of a tetrad.
+//
+// The tetrad's tones are taken to be its close voicing. The chord is inverted first
+// and the voicing is then spread out over that inversion.
+export function tetradVoicing(
+  c: VoiceLeadingChord,
+  voicing: TetradVoicing,
+  inversion: number,
+): VoiceLeadingChord {
+
+  if (c.tones.length != numTetradVoices) {
+    throw new RangeError("cannot voice a tetrad of " + c.tones.length + " voices")
+  }
+
+  return applyTetradVoicing(invertVoicing(c, inversion), voicing)
 }
 
 export function createCycle(
