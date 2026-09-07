@@ -7,7 +7,7 @@
   "packageManager": "yarn@1.22.21",
   "scripts": {
     "build": "webpack",
-    "serve": "http-server dist",
+    "serve": "http-server dist -c-1",
     "start": "yarn build && yarn serve",
     "test": "jest"
   },

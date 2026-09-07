@@ -12,6 +12,7 @@ import {
   diatonicScaleIntervals,
   intervalBetweenNotesUpwards,
   scaleDegree,
+  scaleDegreeNotes,
   scaleFromIonianRoot,
   scaleNotes,
   scaleTypeForMode,
@@ -725,6 +726,38 @@ describe("scaleDegree", () => {
     }
     expect(scaleDegree(GbMajorScale, 2)).toEqual(Note.Ab)
     expect(scaleDegree(GbMajorScale, 9)).toEqual(Note.Ab)
+  })
+})
+
+describe("scaleDegreeNotes", () => {
+
+  const cMajor: Scale = {
+    root: Note.C,
+    intervals: diatonicScaleIntervals(Mode.Ionian),
+  }
+
+  it("returns the selected degrees for one octave", () => {
+    expect(scaleDegreeNotes(cMajor, [1, 3, 5, 7])).toEqual([
+      Note.C, Note.E, Note.G, Note.B,
+    ])
+  })
+
+  it("returns the selected degrees repeated across octaves", () => {
+    expect(scaleDegreeNotes(cMajor, [1, 3, 5, 7], 2)).toEqual([
+      Note.C, Note.E, Note.G, Note.B,
+      Note.C, Note.E, Note.G, Note.B,
+    ])
+  })
+
+  it("preserves the order of the given degrees", () => {
+    expect(scaleDegreeNotes(cMajor, [5, 1, 3])).toEqual([
+      Note.G, Note.C, Note.E,
+    ])
+  })
+
+  it("matches scaleNotes when all degrees are given", () => {
+    expect(scaleDegreeNotes(cMajor, [1, 2, 3, 4, 5, 6, 7], 2))
+      .toEqual(scaleNotes(cMajor, 2))
   })
 })
 

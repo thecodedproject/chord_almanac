@@ -456,6 +456,24 @@ export function scaleNotes(
   return n
 }
 
+// scaleDegreeNotes returns notes for the given scale degrees across `octaves` octaves.
+// e.g. scaleDegreeNotes(cMaj, [1, 3, 5, 7], 2) returns the two-octave arpeggio of Cmaj7.
+export function scaleDegreeNotes(
+  s: Scale,
+  degrees: number[],
+  octaves: number = 1,
+): Note[] {
+
+  const notes: Note[] = []
+  const scaleLength = s.intervals.length
+  for (let o = 0; o < octaves; o++) {
+    for (const d of degrees) {
+      notes.push(scaleDegree(s, d + o * scaleLength))
+    }
+  }
+  return notes
+}
+
 export function shiftNote(n: Note, i: Interval): Note {
 
   let noteVal = noteAsNumber(n)
