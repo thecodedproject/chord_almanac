@@ -318,7 +318,7 @@ describe("tabNotesForVoicing", () => {
   it("tabs a close Cmaj7 as the open chord shape", () => {
     expect(tabNotesForVoicing(
       {scale: cMaj, tones: [1,3,5,7]},
-      {startingString: 5},
+      {strings: [5,4,3,2]},
     )).toEqual([
       {string: 5, fret: 3},
       {string: 4, fret: 2},
@@ -332,7 +332,7 @@ describe("tabNotesForVoicing", () => {
     // above it have to be fretted an octave up
     expect(tabNotesForVoicing(
       {scale: cMaj, tones: [3,8,12,14]},
-      {startingString: 5},
+      {strings: [5,4,3,2]},
     )).toEqual([
       {string: 5, fret: 7},
       {string: 4, fret: 10},
@@ -346,7 +346,7 @@ describe("tabNotesForVoicing", () => {
     // played at the 2nd fret - the C above it would fall off the bottom of the D string
     expect(tabNotesForVoicing(
       {scale: cMaj, tones: [7,8,10,12]},
-      {startingString: 5},
+      {strings: [5,4,3,2]},
     )).toEqual([
       {string: 5, fret: 14},
       {string: 4, fret: 10},
@@ -355,15 +355,39 @@ describe("tabNotesForVoicing", () => {
     ])
   })
 
-  it("puts one voice on each string, working up from the starting string", () => {
+  it("puts one voice on each of the given strings, from the lowest voice up", () => {
     const tabbed = tabNotesForVoicing(
       {scale: cMaj, tones: [5,8,10,14]},
-      {startingString: 6},
+      {strings: [5,3,2,1]},
     )
-    expect(tabbed.map((t) => t.string)).toEqual([6,5,4,3])
+    expect(tabbed.map((t) => t.string)).toEqual([5,3,2,1])
   })
 
-  it("defaults to starting on the lowest string of the tuning", () => {
+  it("draws a wide voicing in closer when a skipped string gives it more room", () => {
+    // drop 3 Cmaj7 - the gap between its bottom two voices is what the skipped 5th
+    // string is there for, and it pulls the shape from five frets wide down to two
+    expect(tabNotesForVoicing(
+      {scale: cMaj, tones: [3,8,12,14]},
+      {strings: [6,5,4,3]},
+    )).toEqual([
+      {string: 6, fret: 0},
+      {string: 5, fret: 3},
+      {string: 4, fret: 5},
+      {string: 3, fret: 4},
+    ])
+
+    expect(tabNotesForVoicing(
+      {scale: cMaj, tones: [3,8,12,14]},
+      {strings: [6,4,3,2]},
+    )).toEqual([
+      {string: 6, fret: 12},
+      {string: 4, fret: 10},
+      {string: 3, fret: 12},
+      {string: 2, fret: 12},
+    ])
+  })
+
+  it("defaults to the lowest strings of the tuning", () => {
     expect(tabNotesForVoicing({scale: diatonicScale(Note.E, Mode.Ionian), tones: [1]}))
       .toEqual([{string: 6, fret: 0}])
   })
@@ -371,7 +395,7 @@ describe("tabNotesForVoicing", () => {
   it("tabs against the given tuning", () => {
     expect(tabNotesForVoicing(
       {scale: diatonicScale(Note.B, Mode.Ionian), tones: [1,4]},
-      {tuning: sevenStringTuning, startingString: 7},
+      {tuning: sevenStringTuning, strings: [7,6]},
     )).toEqual([
       {string: 7, fret: 0},
       {string: 6, fret: 0},
@@ -381,7 +405,21 @@ describe("tabNotesForVoicing", () => {
   it("throws when there are more voices than strings to put them on", () => {
     expect(() => tabNotesForVoicing(
       {scale: cMaj, tones: [1,3,5,7]},
-      {startingString: 3},
+      {strings: [3,2,1]},
+    )).toThrow(RangeError)
+  })
+
+  it("throws when given a string the guitar does not have", () => {
+    expect(() => tabNotesForVoicing(
+      {scale: cMaj, tones: [1,3]},
+      {strings: [7,6]},
+    )).toThrow(RangeError)
+  })
+
+  it("throws when the strings are not given from the lowest sounding up", () => {
+    expect(() => tabNotesForVoicing(
+      {scale: cMaj, tones: [1,3]},
+      {strings: [3,4]},
     )).toThrow(RangeError)
   })
 
@@ -390,7 +428,7 @@ describe("tabNotesForVoicing", () => {
     // strings can reach
     expect(() => tabNotesForVoicing(
       {scale: cMaj, tones: [1,22]},
-      {startingString: 2},
+      {strings: [2,1]},
     )).toThrow(RangeError)
   })
 })

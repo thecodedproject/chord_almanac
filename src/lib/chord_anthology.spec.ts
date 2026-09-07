@@ -30,6 +30,7 @@ import {
   tetradVoicing,
   tetradVoicings,
   vlChordNotes,
+  voicingScaleDegrees,
 } from "./chord_anthology"
 
 import {cloneDeep} from "lodash"
@@ -1430,5 +1431,45 @@ describe("tetradVoicing", () => {
       tones: [1,3,5],
     }
     expect(() => tetradVoicing(cMaj, TetradVoicing.Drop2, 0)).toThrow(RangeError)
+  })
+})
+
+describe("voicingScaleDegrees", () => {
+
+  const cMaj7: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5,7],
+  }
+
+  it.each(
+    [
+      [TetradVoicing.Close, 0, [1,3,5,7]],
+      [TetradVoicing.Close, 3, [7,1,3,5]],
+      [TetradVoicing.Drop2, 0, [5,1,3,7]],
+      [TetradVoicing.Drop3, 0, [3,1,5,7]],
+      [TetradVoicing.Drop2And3, 0, [3,5,1,7]],
+      [TetradVoicing.Drop2And4, 0, [1,5,3,7]],
+      [TetradVoicing.Spread, 0, [5,3,1,7]],
+      [TetradVoicing.Spread, 1, [7,5,3,1]],
+    ],
+  )("gives the order the %s voicing stacks its chord tones in, in inversion %s", (
+    voicing,
+    inversion,
+    expectedDegrees,
+  ) => {
+    expect(voicingScaleDegrees(tetradVoicing(cMaj7, voicing, inversion)))
+      .toEqual(expectedDegrees)
+  })
+
+  it("gives every order the four voices can be stacked in across the table", () => {
+    const orders = new Set<string>()
+
+    for (const voicing of tetradVoicings) {
+      for (let inversion = 0; inversion < numTetradVoices; inversion++) {
+        orders.add(voicingScaleDegrees(tetradVoicing(cMaj7, voicing, inversion)).join())
+      }
+    }
+
+    expect(orders.size).toEqual(24)
   })
 })

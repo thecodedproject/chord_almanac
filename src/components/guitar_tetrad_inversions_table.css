@@ -6,9 +6,21 @@
   --num-inversions: 4; /* Each inversion is in it's own column */
   --num-voicings: 6;   /* Each voicing is in it's own row */
 
+  --table-line: #e8e8e8;
+  --table-header-line: #bbb;
+
   display: grid;
   grid-template-columns: var(--col-label-width) repeat(var(--num-inversions), auto);
   grid-template-rows: var(--row-label-height) repeat(var(--num-voicings), auto);
+
+  border-top: 1px solid var(--table-line);
+  border-left: 1px solid var(--table-line);
+}
+
+/* every cell carries its own right and bottom line, so the grid is ruled throughout */
+.guitarTetradInversionsTable > * {
+  border-right: 1px solid var(--table-line);
+  border-bottom: 1px solid var(--table-line);
 }
 
 .guitarTetradInversionsTable .voicingLabel {
@@ -16,6 +28,15 @@
 
   grid-row: calc(1 + var(--voicing));
   grid-column: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  padding-right: 0.6em;
+  font-weight: bold;
+
+  border-right: 1px solid var(--table-header-line);
 }
 
 .guitarTetradInversionsTable .inversionLabel {
@@ -23,6 +44,14 @@
 
   grid-row: 1;
   grid-column: calc(1 + var(--inversion));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+
+  border-bottom: 1px solid var(--table-header-line);
 }
 
 .guitarTetradInversionsTable .fingerChart {
@@ -31,12 +60,37 @@
 
   grid-row: calc(1 + var(--voicing));
   grid-column: calc(1 + var(--inversion));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 0.4em 0.6em 0.6em;
 }
 
-.guitarTetradInversionsTable .fingerChartUnplayable {
+/* the widest voicings reach across 14 frets, so the charts are scaled down here to fit
+   four of them side by side */
+.guitarTetradInversionsTable .guitarFingerChart {
+  --fret-space: 15px;
+  --fret-marker-width: 8px;
+  --string-space: 17px;
+  --note-dot-width: 12px;
+  --fret-label-height: 32px;
+
+  font-size: 11px;
+}
+
+.guitarTetradInversionsTable .fingerChart .voicingDegrees {
+  font-family: monospace;
+  font-size: 1.1em;
+  letter-spacing: 0.2em;
+  color: #555;
+}
+
+.guitarTetradInversionsTable .fingerChart .unplayable {
   display: flex;
   align-items: center;
-  justify-content: center;
+  flex-grow: 1;
 
   color: grey;
   font-style: italic;

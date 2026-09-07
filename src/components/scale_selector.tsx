@@ -56,7 +56,7 @@ export function ScaleSelector({props}: {props: IScaleProps}) {
         <button onClick={handleRootClick(Note.Gb)}>Gb</button>
         <button onClick={handleRootClick(Note.G)}>G</button>
         <button onClick={handleRootClick(Note.Ab)}>Ab</button>
-        <button onClick={handleRootClick(Note.A)}>Ab</button>
+        <button onClick={handleRootClick(Note.A)}>A</button>
         <button onClick={handleRootClick(Note.Bb)}>Bb</button>
         <button onClick={handleRootClick(Note.B)}>B</button>
       </div>

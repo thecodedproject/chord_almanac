@@ -1,5 +1,26 @@
+.guitarTetradInversions .selectorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 
-.guitarTetradInversions {
+  margin-bottom: 0.5rem;
+}
 
-  display: grid
+.guitarTetradInversions .guitarTetradInversionsTable {
+  margin-top: 1.5rem;
+}
+
+.guitarTetradInversions .selectorRow > span {
+  min-width: 8em;
+  text-align: right;
+}
+
+.guitarTetradInversions .selectorRow button.selected {
+  background: #e0e0e0;
+  font-weight: bold;
+}
+
+.guitarTetradInversions .chordDegreesPrompt {
+  color: grey;
+  font-style: italic;
 }

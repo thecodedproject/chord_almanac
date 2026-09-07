@@ -17,7 +17,9 @@ export enum TabNotesDirection {
 }
 
 export interface TabNotesForVoicingOptions {
-  startingString?: number
+  // the strings to voice the chord on, from the lowest sounding voice up. They need not
+  // neighbour each other - skipping a string gives a voicing more room to spread out.
+  strings?: number[]
   maxFret?: number
   tuning?: Note[]
 }
@@ -74,19 +76,19 @@ function tabVoicingFromFret(
   c: VoiceLeadingChord,
   voices: number[],
   lowestFret: number,
-  startingString: number,
+  strings: number[],
   tuning: Note[],
   maxFret: number,
 ): TabNote[] | undefined {
 
   const openPitches = openStringPitches(tuning)
-  const lowestVoicePitch = openPitches[tuning.length - startingString] + lowestFret
+  const lowestVoicePitch = openPitches[tuning.length - strings[0]] + lowestFret
 
   const tab: TabNote[] = []
 
   for (let i=0; i < voices.length; i++) {
 
-    const string = startingString - i
+    const string = strings[i]
 
     const pitch = lowestVoicePitch + semiTonesBetweenScaleDegreesUpwards(
       c.scale,
@@ -109,8 +111,19 @@ function tabVoicingFromFret(
   return tab
 }
 
-// tabNotesForVoicing tabs a chord voicing one note per string, starting on
-// `startingString` and working up towards the highest string.
+// lowestStrings returns the `numStrings` lowest strings of the tuning, from the lowest
+// string upwards.
+function lowestStrings(tuning: Note[], numStrings: number): number[] {
+
+  const strings: number[] = []
+  for (let i=0; i < numStrings; i++) {
+    strings.push(tuning.length - i)
+  }
+  return strings
+}
+
+// tabNotesForVoicing tabs a chord voicing one note per string, putting the lowest voice
+// on the first of the given strings and working up from there.
 //
 // Each voice is fretted at its own interval above the lowest voice, so the tab sounds
 // the voicing itself rather than just the notes it is made of. The voicing is played as
@@ -122,33 +135,42 @@ export function tabNotesForVoicing(
 
   const {
     tuning = defaultTuning,
-    startingString = tuning.length,
     maxFret = 24,
   } = options
 
   const voices = [...c.tones].sort((a, b) => a-b)
+  const strings = options.strings ?? lowestStrings(tuning, voices.length)
 
-  if (voices.length > startingString) {
-    throw new RangeError("cannot tab voicing of " + voices.length + " voices starting on string " + startingString + "; it would run off the neck")
+  if (strings.length < voices.length) {
+    throw new RangeError("cannot tab voicing of " + voices.length + " voices on " + strings.length + " strings")
   }
 
-  const startingStringNote = tuning[tuning.length - startingString]
+  for (let i=0; i < voices.length; i++) {
+    if (strings[i] < 1 || strings[i] > tuning.length) {
+      throw new RangeError("cannot tab voicing; string " + strings[i] + " is not on a " + tuning.length + " string guitar")
+    }
+    if (i > 0 && strings[i] >= strings[i-1]) {
+      throw new RangeError("cannot tab voicing; strings must be given from the lowest sounding up, got:" + strings)
+    }
+  }
+
+  const lowestStringNote = tuning[tuning.length - strings[0]]
   const lowestNote = scaleDegree(c.scale, voices[0])
 
-  // the lowest voice can be played at any octave of its note on the starting string;
-  // take the lowest of those which leaves room for the voices above it
+  // the lowest voice can be played at any octave of its note on the lowest string; take
+  // the lowest of those which leaves room for the voices above it
   for (
-    let lowestFret = semiTonesBetweenNotesUpwards(startingStringNote, lowestNote);
+    let lowestFret = semiTonesBetweenNotesUpwards(lowestStringNote, lowestNote);
     lowestFret <= maxFret;
     lowestFret += 12
   ) {
-    const tab = tabVoicingFromFret(c, voices, lowestFret, startingString, tuning, maxFret)
+    const tab = tabVoicingFromFret(c, voices, lowestFret, strings, tuning, maxFret)
     if (tab != undefined) {
       return tab
     }
   }
 
-  throw new RangeError("cannot tab voicing (" + voices + "); it does not fit on the fret board from string " + startingString)
+  throw new RangeError("cannot tab voicing (" + voices + "); it does not fit on the fret board across strings " + strings)
 }
 
 export function tabNotesNPerString(

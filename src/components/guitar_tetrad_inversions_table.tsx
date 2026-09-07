@@ -3,14 +3,12 @@ import "./guitar_tetrad_inversions_table.css"
 import {CSSProperties, Fragment} from "react";
 
 import {
-  Mode,
-  Note,
   TetradVoicing,
   VoiceLeadingChord,
-  diatonicScale,
   numTetradVoices,
   tetradVoicing,
   tetradVoicings,
+  voicingScaleDegrees,
 } from '../lib/chord_anthology'
 
 import {
@@ -44,17 +42,9 @@ const voicingLabels: Record<TetradVoicing, string> = {
 // there is one inversion per chord voice; the first is the chord in root position
 const inversionLabels = ["Root", "1st", "2nd", "3rd"]
 
-// The tetrad is voiced on the four strings below (and including) this one. The widest
-// voicings span a little over two octaves, which only fits from the lowest string.
-const startingString = 6
-
-export function GuitarTetradInversionsTable() {
-
-  //TODO pass chord to table
-  const chord: VoiceLeadingChord = {
-    scale: diatonicScale(Note.C, Mode.Ionian),
-    tones: [1,3,5,7],
-  }
+export function GuitarTetradInversionsTable(
+  {chord, strings}: {chord: VoiceLeadingChord, strings: number[]}
+) {
 
   const inversions = [...Array(numTetradVoices)].map((_, i) => i)
 
@@ -83,6 +73,7 @@ export function GuitarTetradInversionsTable() {
             {inversions.map((inversion) => (
               <FingerChart
                 chord={chord}
+                strings={strings}
                 voicing={voicing}
                 voicingRow={iVoicing+1}
                 inversion={inversion}
@@ -98,39 +89,31 @@ export function GuitarTetradInversionsTable() {
 }
 
 function FingerChart(
-  {chord, voicing, voicingRow, inversion}: {
+  {chord, strings, voicing, voicingRow, inversion}: {
     chord: VoiceLeadingChord,
+    strings: number[],
     voicing: TetradVoicing,
     voicingRow: number,
     inversion: number,
   }
 ) {
 
-  // a voicing spread over more than the neck can reach cannot be played on these
-  // strings; show the cell as empty rather than losing the rest of the table
-  let tabNotes: TabNote[]
+  const voicedChord = tetradVoicing(chord, voicing, inversion)
+
+  // a voicing spread wider than these strings can reach cannot be played on them; show
+  // the cell as empty rather than losing the rest of the table
+  let tabNotes: TabNote[] | undefined
   try {
     tabNotes = tabNotesForVoicing(
-      tetradVoicing(chord, voicing, inversion),
+      voicedChord,
       {
-        startingString: startingString,
+        strings: strings,
       },
     )
   } catch (e) {
     if (!(e instanceof RangeError)) {
       throw e
     }
-    return (
-      <div
-        className="fingerChart fingerChartUnplayable"
-        style={{
-          "--voicing": voicingRow,
-          "--inversion": inversion+1,
-        } as FingerChartProps}
-      >
-        does not fit on the neck
-      </div>
-    )
   }
 
   return (
@@ -141,7 +124,13 @@ function FingerChart(
         "--inversion": inversion+1,
       } as FingerChartProps}
     >
-      <GuitarFingerChart tabNotes={tabNotes}/>
+      <div className="voicingDegrees">
+        {voicingScaleDegrees(voicedChord).join(" ")}
+      </div>
+      {tabNotes == undefined
+        ? <div className="unplayable">does not fit on these strings</div>
+        : <GuitarFingerChart tabNotes={tabNotes}/>
+      }
     </div>
   )
 }

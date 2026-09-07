@@ -790,6 +790,18 @@ export function normaliseVoicing(c: VoiceLeadingChord): VoiceLeadingChord {
   }
 }
 
+// voicingScaleDegrees returns the scale degree each voice of the voicing sounds, from
+// the lowest voice up to the highest, with the octaves taken off.
+//
+// e.g. the close tetrad [1,3,5,7] and the drop 2 voicing [5,8,10,14] built from it give
+//      [1,3,5,7] and [5,1,3,7] - the order the chord tones are stacked in
+export function voicingScaleDegrees(c: VoiceLeadingChord): number[] {
+
+  const octave = degreesPerOctave(c)
+
+  return sortedVoices(c).map((t) => (((t-1)%octave) + octave)%octave + 1)
+}
+
 // invertVoicing inverts the voicing by taking its lowest voice up an octave, so that
 // the voicing sounds the same chord tones but sits on the next one up.
 //
