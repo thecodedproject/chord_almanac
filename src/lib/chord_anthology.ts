@@ -505,6 +505,22 @@ export function diatonicScale(root: Note, mode: Mode): Scale {
   }
 }
 
+// modeForScale names the mode the scale is built from.
+//
+// Every mode of every diatonic scale type has its own pattern of intervals, so the
+// pattern alone names the mode however the scale was arrived at - including scales
+// shifted diatonically away from the one they started as.
+export function modeForScale(s: Scale): Mode {
+
+  for (const mode of Object.values(Mode)) {
+    if (isEqual(diatonicScaleIntervals(mode), s.intervals)) {
+      return mode
+    }
+  }
+
+  throw RangeError("cannot name the mode of a scale whose intervals are not those of a diatonic mode:" + s.intervals)
+}
+
 export function scaleFromIonianRoot(
   ionianRoot: Note,
   scaleType: ScaleType,

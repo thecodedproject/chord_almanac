@@ -1,0 +1,86 @@
+.guitarModeCycleTable {
+
+  --row-label-height: 2em;
+  --col-label-width: 8em;
+
+  --num-columns: 4;    /* Each chart of a row is in it's own column */
+  --num-modes: 7;      /* Each mode is in it's own row */
+
+  --table-line: #e8e8e8;
+  --table-header-line: #bbb;
+
+  display: grid;
+  grid-template-columns: var(--col-label-width) repeat(var(--num-columns), auto);
+  grid-template-rows: var(--row-label-height) repeat(var(--num-modes), auto);
+
+  border-top: 1px solid var(--table-line);
+  border-left: 1px solid var(--table-line);
+}
+
+/* every cell carries its own right and bottom line, so the grid is ruled throughout */
+.guitarModeCycleTable > * {
+  border-right: 1px solid var(--table-line);
+  border-bottom: 1px solid var(--table-line);
+}
+
+.guitarModeCycleTable .voicingLabel {
+  grid-row: 1;
+  grid-column: 1;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  padding-right: 0.6em;
+  font-weight: bold;
+
+  border-right: 1px solid var(--table-header-line);
+  border-bottom: 1px solid var(--table-header-line);
+}
+
+.guitarModeCycleTable .modeLabel {
+  --mode: 1;
+
+  grid-row: calc(1 + var(--mode));
+  grid-column: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+
+  padding-right: 0.6em;
+
+  border-right: 1px solid var(--table-header-line);
+}
+
+.guitarModeCycleTable .modeLabel .modeName {
+  font-weight: bold;
+}
+
+.guitarModeCycleTable .modeLabel .modeRoot {
+  color: #555;
+}
+
+.guitarModeCycleTable .columnLabel {
+  --column: 1;
+
+  grid-row: 1;
+  grid-column: calc(1 + var(--column));
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: bold;
+
+  border-bottom: 1px solid var(--table-header-line);
+}
+
+.guitarModeCycleTable .fingerChart {
+  --column: 1;
+  --mode: 1;
+
+  grid-row: calc(1 + var(--mode));
+  grid-column: calc(1 + var(--column));
+}

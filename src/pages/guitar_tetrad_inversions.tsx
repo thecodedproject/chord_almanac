@@ -1,7 +1,5 @@
 import "./guitar_tetrad_inversions.css"
 
-import {isEqual} from "lodash"
-
 import {
   newState,
 } from "../state"
@@ -15,22 +13,16 @@ import {
 } from "../components/scale_selector"
 
 import {
+  StringSetSelector,
+  stringSets,
+} from "../components/string_set_selector"
+
+import {
   Note,
   ScaleType,
   numTetradVoices,
   scaleFromIonianRoot,
 } from "../lib/chord_anthology"
-
-// the sets of four strings a tetrad is conventionally voiced on, each given from its
-// lowest sounding string up. The last two skip a string, which gives the wider voicings
-// the room they need.
-const stringSets: number[][] = [
-  [6,5,4,3],
-  [5,4,3,2],
-  [4,3,2,1],
-  [6,4,3,2],
-  [5,3,2,1],
-]
 
 // the seventh chord - by far the most common tetrad
 const defaultChordDegrees = [1,3,5,7]
@@ -120,31 +112,6 @@ function ChordDegreeSelector(
           </button>
         )
       })}
-    </div>
-  )
-}
-
-function StringSetSelector(
-  {value, set}: {value: number[], set: (s: number[]) => void}
-) {
-
-  const handleClick = (strings: number[]) => (event: any) => {
-    set(strings)
-    event.preventDefault()
-  }
-
-  return (
-    <div className="selectorRow stringSetSelector">
-      <span>Strings:</span>
-      {stringSets.map((strings) => (
-        <button
-          key={strings.join()}
-          onClick={handleClick(strings)}
-          disabled={isEqual(strings, value)}
-        >
-          {strings.join(" ")}
-        </button>
-      ))}
     </div>
   )
 }

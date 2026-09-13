@@ -14,6 +14,7 @@ import {
   dropVoices,
   intervalBetweenNotesUpwards,
   invertVoicing,
+  modeForScale,
   normaliseVoicing,
   numTetradVoices,
   raiseVoices,
@@ -582,6 +583,55 @@ describe("scaleTypeForMode", () => {
     expectedScaleType,
   ) => {
     expect(scaleTypeForMode(mode)).toEqual(expectedScaleType)
+  })
+})
+
+describe("modeForScale", () => {
+
+  it.each(
+    [
+      [Mode.Ionian],
+      [Mode.Dorian],
+      [Mode.Phrygian],
+      [Mode.Lydian],
+      [Mode.Mixolydian],
+      [Mode.Aeolian],
+      [Mode.Locrian],
+      [Mode.Ionian_b3],
+      [Mode.Lydian_b7],
+      [Mode.Ionian_sharp5],
+      [Mode.Locrian_natural6],
+      [Mode.Ionian_b6],
+      [Mode.Locrian_bb7],
+    ],
+  )("names the mode a %s scale is built from", (mode) => {
+    expect(modeForScale(diatonicScale(Note.C, mode))).toEqual(mode)
+  })
+
+  it("names every mode of every scale type apart from the others", () => {
+    const modes = Object.values(Mode)
+
+    for (const mode of modes) {
+      expect(modeForScale(diatonicScale(Note.C, mode))).toEqual(mode)
+    }
+  })
+
+  it("names the mode a diatonically shifted scale has become", () => {
+    const cMajor = diatonicScale(Note.C, Mode.Ionian)
+
+    expect(modeForScale(shiftScaleDiatonically(cMajor, DiatonicInterval.Fourth)))
+      .toEqual(Mode.Lydian)
+    expect(modeForScale(shiftScaleDiatonically(cMajor, DiatonicInterval.Sixth)))
+      .toEqual(Mode.Aeolian)
+  })
+
+  it("throws when the scale is not a mode of a diatonic scale", () => {
+    const chromatic = {
+      root: Note.C,
+      intervals: [...Array(12)].map(() => Interval.MinorSecond),
+    }
+
+    expect(() => modeForScale(chromatic)).toThrow(RangeError)
   })
 })
 

@@ -1,0 +1,14 @@
+/* the shared layout of the rows of buttons which sit above a table */
+.selectorRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  margin-bottom: 0.5rem;
+}
+
+/* the label naming the row, kept the same width across rows so the buttons line up */
+.selectorRow > span {
+  min-width: 8em;
+  text-align: right;
+}
