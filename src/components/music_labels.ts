@@ -3,6 +3,7 @@
 
 import {
   Mode,
+  TetradQuality,
   TetradVoicing,
 } from "../lib/chord_anthology"
 
@@ -17,6 +18,21 @@ export const voicingLabels: Record<TetradVoicing, string> = {
 
 // there is one inversion per chord voice; the first is the chord in root position
 export const inversionLabels = ["Root", "1st", "2nd", "3rd"]
+
+// the scale degrees a chord can be built on, written as harmony numbers them
+export const scaleDegreeNumerals = ["I", "II", "III", "IV", "V", "VI", "VII"]
+
+// the suffixes a seventh chord is written with, after the note it is rooted on
+export const tetradQualityLabels: Record<TetradQuality, string> = {
+  [TetradQuality.Major7]: "maj7",
+  [TetradQuality.Dominant7]: "7",
+  [TetradQuality.Minor7]: "m7",
+  [TetradQuality.MinorMajor7]: "mMaj7",
+  [TetradQuality.HalfDiminished7]: "m7♭5",
+  [TetradQuality.Diminished7]: "dim7",
+  [TetradQuality.Major7_sharp5]: "maj7♯5",
+  [TetradQuality.Dominant7_sharp5]: "7♯5",
+}
 
 // the modes of the major scale keep their own names; the modes of the other scales are
 // named for the major scale mode they alter, and the degree they alter it at

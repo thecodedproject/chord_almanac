@@ -7,8 +7,9 @@
   margin-bottom: 0.5rem;
 }
 
-/* the label naming the row, kept the same width across rows so the buttons line up */
-.selectorRow > span {
+/* the label naming the row, kept the same width across rows so what follows it lines
+   up from row to row */
+.selectorRow > span:first-child {
   min-width: 8em;
   text-align: right;
 }

@@ -5,6 +5,7 @@ import {
   Note,
   Scale,
   ScaleType,
+  TetradQuality,
   TetradVoicing,
   VoiceLeadingChord,
   createCycle,
@@ -22,12 +23,14 @@ import {
   scaleDegreeNotes,
   scaleFromIonianRoot,
   scaleNotes,
+  scaleDegreesInDiatonicInterval,
   scaleTypeForMode,
   semiTonesBetweenNotesUpwards,
   shiftChordTonesByMap,
   shiftChordToNextNearestInversion,
   shiftNote,
   shiftScaleDiatonically,
+  tetradQualityAtScaleDegree,
   tetradVoicing,
   tetradVoicings,
   vlChordNotes,
@@ -1521,5 +1524,125 @@ describe("voicingScaleDegrees", () => {
     }
 
     expect(orders.size).toEqual(24)
+  })
+})
+
+describe("scaleDegreesInDiatonicInterval", () => {
+
+  it("counts the degrees each interval climbs", () => {
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Unison)).toEqual(0)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Second)).toEqual(1)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Third)).toEqual(2)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Fourth)).toEqual(3)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Fifth)).toEqual(4)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Sixth)).toEqual(5)
+    expect(scaleDegreesInDiatonicInterval(DiatonicInterval.Seventh)).toEqual(6)
+  })
+
+  it("agrees with the interval each degree of a scale is measured at", () => {
+    const scale = diatonicScale(Note.C, Mode.Ionian)
+
+    for (let degree = 1; degree < 8; degree++) {
+      expect(
+        scaleDegreesInDiatonicInterval(
+          diatonicIntervalBetweenScaleDegreesUpwards(scale, 1, degree),
+        ),
+      ).toEqual(degree - 1)
+    }
+  })
+})
+
+describe("tetradQualityAtScaleDegree", () => {
+
+  // the seventh chord on each degree in turn, from the first up
+  function qualitiesOf(mode: Mode): TetradQuality[] {
+
+    const scale = diatonicScale(Note.C, mode)
+
+    return [...Array(scale.intervals.length)].map(
+      (_, i) => tetradQualityAtScaleDegree(scale, i+1),
+    )
+  }
+
+  it("names the seventh chords of the major scale", () => {
+    expect(qualitiesOf(Mode.Ionian)).toEqual([
+      TetradQuality.Major7,
+      TetradQuality.Minor7,
+      TetradQuality.Minor7,
+      TetradQuality.Major7,
+      TetradQuality.Dominant7,
+      TetradQuality.Minor7,
+      TetradQuality.HalfDiminished7,
+    ])
+  })
+
+  it("names the seventh chords of the melodic minor scale", () => {
+    expect(qualitiesOf(Mode.Ionian_b3)).toEqual([
+      TetradQuality.MinorMajor7,
+      TetradQuality.Minor7,
+      TetradQuality.Major7_sharp5,
+      TetradQuality.Dominant7,
+      TetradQuality.Dominant7,
+      TetradQuality.HalfDiminished7,
+      TetradQuality.HalfDiminished7,
+    ])
+  })
+
+  it("names the seventh chords of the harmonic minor scale", () => {
+    expect(qualitiesOf(Mode.Aeolian_natural7)).toEqual([
+      TetradQuality.MinorMajor7,
+      TetradQuality.HalfDiminished7,
+      TetradQuality.Major7_sharp5,
+      TetradQuality.Minor7,
+      TetradQuality.Dominant7,
+      TetradQuality.Major7,
+      TetradQuality.Diminished7,
+    ])
+  })
+
+  it("names the seventh chords of the harmonic major scale", () => {
+    expect(qualitiesOf(Mode.Ionian_b6)).toEqual([
+      TetradQuality.Major7,
+      TetradQuality.HalfDiminished7,
+      TetradQuality.Minor7,
+      TetradQuality.MinorMajor7,
+      TetradQuality.Dominant7,
+      TetradQuality.Major7_sharp5,
+      TetradQuality.Diminished7,
+    ])
+  })
+
+  it("names the chord a degree carries whichever mode the scale is written from", () => {
+
+    // the fifth of C major is a G7 read from C, and so is the first of G mixolydian
+    expect(
+      tetradQualityAtScaleDegree(scaleFromIonianRoot(Note.C, ScaleType.Major, 1), 5),
+    ).toEqual(
+      tetradQualityAtScaleDegree(scaleFromIonianRoot(Note.C, ScaleType.Major, 5), 1),
+    )
+  })
+
+  it("names a chord on a degree beyond the first octave of the scale", () => {
+    const scale = diatonicScale(Note.C, Mode.Ionian)
+
+    expect(tetradQualityAtScaleDegree(scale, 8)).toEqual(TetradQuality.Major7)
+  })
+
+  it("throws when no seventh chord stacks the intervals the scale gives", () => {
+
+    // a whole tone scale has no seventh to stack over its augmented triads
+    const wholeTone: Scale = {
+      root: Note.C,
+      intervals: [
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+        Interval.MajorSecond,
+      ],
+    }
+
+    expect(() => tetradQualityAtScaleDegree(wholeTone, 1)).toThrow(RangeError)
   })
 })

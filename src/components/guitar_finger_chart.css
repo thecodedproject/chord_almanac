@@ -15,6 +15,11 @@
   --string-img-width: 2px;
 
   --note-dot-width: 30px;
+  --note-color: red;
+
+  /* the scale a chart's notes are picked out of, shown behind them */
+  --background-note-color: blue;
+  --background-note-opacity: 0.25;
 
   display: grid;
   grid-template-columns: var(--left-pad) calc(var(--num-frets)*(var(--fret-img-width)+var(--fret-space)));;
@@ -64,11 +69,19 @@
 
   display: flex;
   margin: auto;
-  background-color: red;
+  background-color: var(--note-color);
   height: var(--note-dot-width);
   width: var(--note-dot-width);
   border-radius: 100%;
   z-index: 5;
+}
+
+/* background notes sit under the notes to play, so a note which is in both is drawn
+   only as one to play */
+.guitarFingerChart .body .note.backgroundNote {
+  background-color: var(--background-note-color);
+  opacity: var(--background-note-opacity);
+  z-index: 4;
 }
 
 .guitarFingerChart .body .fretWire {

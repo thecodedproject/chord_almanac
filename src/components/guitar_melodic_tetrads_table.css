@@ -1,0 +1,80 @@
+.guitarMelodicTetradsTable {
+
+  --col-label-width: 9em;
+
+  --num-chords: 7;     /* Each chord of the scale is in it's own row */
+
+  --table-line: #e8e8e8;
+  --table-header-line: #bbb;
+
+  display: grid;
+  grid-template-columns: var(--col-label-width) auto;
+  grid-template-rows: repeat(var(--num-chords), auto);
+
+  /* the table is as wide as the one chart in each of its rows, no wider */
+  width: max-content;
+
+  border-top: 1px solid var(--table-line);
+  border-left: 1px solid var(--table-line);
+}
+
+/* every cell carries its own right and bottom line, so the grid is ruled throughout */
+.guitarMelodicTetradsTable > * {
+  border-right: 1px solid var(--table-line);
+  border-bottom: 1px solid var(--table-line);
+}
+
+.guitarMelodicTetradsTable .chordLabel {
+  --row: 1;
+
+  grid-row: var(--row);
+  grid-column: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+
+  padding-right: 0.6em;
+
+  border-right: 1px solid var(--table-header-line);
+}
+
+.guitarMelodicTetradsTable .chordLabel .chordDegree {
+  font-size: 1.3em;
+  font-weight: bold;
+}
+
+.guitarMelodicTetradsTable .chordLabel .chordName {
+  font-weight: bold;
+}
+
+.guitarMelodicTetradsTable .chordLabel .chordNotes {
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: #555;
+}
+
+.guitarMelodicTetradsTable .chartCell {
+  --row: 1;
+
+  grid-row: var(--row);
+  grid-column: 2;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 0.4em 0.8em 0.6em;
+}
+
+/* a position reaches across six frets and every string, so the charts are scaled down
+   here to keep a whole table of them in view */
+.guitarMelodicTetradsTable .chartCell .guitarFingerChart {
+  --fret-space: 22px;
+  --fret-marker-width: 10px;
+  --string-space: 22px;
+  --note-dot-width: 16px;
+  --fret-label-height: 34px;
+
+  font-size: 11px;
+}

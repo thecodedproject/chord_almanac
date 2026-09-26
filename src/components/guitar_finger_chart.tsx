@@ -21,14 +21,23 @@ interface FretProps extends CSSProperties {
 
 interface NoteProps extends StringProps, FretProps {}
 
+// GuitarFingerChart draws the notes to play on a stretch of the neck.
+//
+// `backgroundNotes` are drawn faintly behind them - the scale the notes are picked out
+// of, say. The chart reaches across every note it is given, background notes included,
+// so the notes to play keep their place on the neck amongst the rest of them.
 export function GuitarFingerChart(
-  {tabNotes, numStrings = 6}: {tabNotes: TabNote[], numStrings?: number}
+  {tabNotes, backgroundNotes = [], numStrings = 6}: {
+    tabNotes: TabNote[],
+    backgroundNotes?: TabNote[],
+    numStrings?: number,
+  }
 ) {
 
   let minFret = 24
   let maxFret = 0
 
-  for (const n of tabNotes) {
+  for (const n of [...tabNotes, ...backgroundNotes]) {
     if (n.fret < minFret) {
       minFret = n.fret
     }
@@ -44,6 +53,11 @@ export function GuitarFingerChart(
     return <Note string={n.string} fret={relativeFret} key={i} />
   })
 
+  const backgroundFretNotes = backgroundNotes.map((n, i) => {
+    const relativeFret = n.fret - minFret + 1
+    return <Note string={n.string} fret={relativeFret} background key={"background_" + i} />
+  })
+
   return (
     <div
       className="guitarFingerChart"
@@ -56,6 +70,7 @@ export function GuitarFingerChart(
         <Strings numStrings={numStrings} />
         <FretWires numFrets={numFrets} />
         <FretMarkers bottomFret={minFret} topFret={maxFret} />
+        {backgroundFretNotes}
         {fretNotes}
       </div>
     </div>
@@ -167,10 +182,16 @@ function Strings({numStrings}: {numStrings: number}) {
   )
 }
 
-function Note({string, fret}: {string: number, fret: number}) {
+function Note(
+  {string, fret, background = false}: {
+    string: number,
+    fret: number,
+    background?: boolean,
+  }
+) {
 
   return <div
-    className="note"
+    className={background ? "note backgroundNote" : "note"}
     style={
       {
         "--string": string,

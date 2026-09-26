@@ -1,36 +1,28 @@
+import "./guitar_melodic_tetrads_page.css"
+
 import {
   newState,
 } from "../state"
 
 import {
-  GuitarFingerChart,
-} from "../components/guitar_finger_chart"
+  GuitarMelodicTetradsTable,
+} from "../components/guitar_melodic_tetrads_table"
 
 import {
   ScaleSelector,
 } from "../components/scale_selector"
 
 import {
-  Note,
-  ScaleType,
-  scaleDegreeNotes,
-  scaleFromIonianRoot,
-} from "../lib/chord_anthology"
+  NumStringsSelector,
+  TuningDisplay,
+  tuningsByNumStrings,
+} from "../components/tuning_selector"
 
 import {
-  eightStringTuning,
-  sevenStringTuning,
-  sixStringTuning,
-  tabNotesNPerString,
-} from "../lib/guitar_notation"
-
-const tuningsByNumStrings: Record<number, Note[]> = {
-  6: sixStringTuning,
-  7: sevenStringTuning,
-  8: eightStringTuning,
-}
-
-const tetradDegrees = [1, 3, 5, 7]
+  Note,
+  ScaleType,
+  scaleFromIonianRoot,
+} from "../lib/chord_anthology"
 
 export function GuitarMelodicTetradsPage() {
 
@@ -51,69 +43,26 @@ export function GuitarMelodicTetradsPage() {
     props.scale.pos.value,
   )
 
-  // one full tetrad per string; tabNotesNPerString places each octave's copy
-  // on the next string automatically
-  const notes = scaleDegreeNotes(scale, tetradDegrees, tuning.length)
-
-  const scaleTab = tabNotesNPerString(
-    notes,
-    {
-      notesPerString: tetradDegrees.length,
-      trimExcess: true,
-      tuning: tuning,
-    },
-  )
-
   return (
-    <>
+    <div className="guitarMelodicTetrads">
       <h2>Guitar melodic tetrads</h2>
-        <GuitarFingerChart tabNotes={scaleTab} numStrings={tuning.length}/>
-      <br />
+
+      <p className="pageNote">
+        Every chord of the scale played as a melodic tetrad, run right through one three
+        notes per string position without the hand leaving it - so a chord opens on
+        whichever of its notes the position reaches first, root or not. The position
+        itself is drawn faintly behind each chord.
+      </p>
+
+      {/* the controls sit above the table so that they stay put as it changes size */}
       <NumStringsSelector
         value={props.numStrings.value}
         set={props.numStrings.set}
       />
       <TuningDisplay tuning={tuning} />
       <ScaleSelector props={props.scale}/>
-    </>
-  )
-}
 
-function NumStringsSelector(
-  {value, set}: {value: number, set: (n: number) => void}
-) {
-  const handleClick = (n: number) => (event: any) => {
-    set(n)
-    event.preventDefault()
-  }
-
-  return (
-    <div className="numStringsSelector">
-      <span>Strings:</span>
-      {Object.keys(tuningsByNumStrings).map((n) => {
-        const num = Number(n)
-        return (
-          <button
-            key={num}
-            onClick={handleClick(num)}
-            disabled={num === value}
-          >
-            {num}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function TuningDisplay({tuning}: {tuning: Note[]}) {
-  const displayed = [...tuning].reverse()
-  return (
-    <div className="tuningDisplay">
-      <span>Tuning:</span>
-      {displayed.map((note, i) => (
-        <span className="tuningNote" key={i}>{note}</span>
-      ))}
+      <GuitarMelodicTetradsTable scale={scale} tuning={tuning} />
     </div>
   )
 }

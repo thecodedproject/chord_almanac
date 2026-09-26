@@ -1,13 +1,17 @@
 import {
   Mode,
   Note,
+  ScaleType,
   diatonicScale,
+  scaleFromIonianRoot,
 } from './chord_anthology'
 
 import {
   sevenStringTuning,
+  tabChordInPosition,
   tabNotesForVoicing,
   tabNotesNPerString,
+  tabScalePosition,
 } from './guitar_notation'
 
 
@@ -430,5 +434,235 @@ describe("tabNotesForVoicing", () => {
       {scale: cMaj, tones: [1,22]},
       {strings: [2,1]},
     )).toThrow(RangeError)
+  })
+})
+
+describe("tabScalePosition", () => {
+
+  // C major taken from each of its degrees, which is what the positions are numbered by
+  const cMajorPosition = (pos: number) =>
+    scaleFromIonianRoot(Note.C, ScaleType.Major, pos)
+
+  // the fret every note of a string is played at, string by string from the lowest up
+  function fretsByString(tab: {string: number, fret: number}[]): number[][] {
+
+    const frets: number[][] = []
+
+    for (const n of tab) {
+      const iString = frets.length - 1
+      if (iString < 0 || tab[0].string - n.string !== iString) {
+        frets.push([n.fret])
+      } else {
+        frets[iString].push(n.fret)
+      }
+    }
+
+    return frets
+  }
+
+  it("puts three notes on every string, from the lowest string up", () => {
+    const tab = tabScalePosition(cMajorPosition(1))
+
+    expect(tab).toHaveLength(18)
+    expect(tab.map((n) => n.string)).toEqual([
+      6,6,6, 5,5,5, 4,4,4, 3,3,3, 2,2,2, 1,1,1,
+    ])
+  })
+
+  it("plays the first position of C major from the 8th fret", () => {
+    expect(fretsByString(tabScalePosition(cMajorPosition(1)))).toEqual([
+      [8, 10, 12],
+      [8, 10, 12],
+      [9, 10, 12],
+      [9, 10, 12],
+      [10, 12, 13],
+      [10, 12, 13],
+    ])
+  })
+
+  it("keeps the whole position under one hand as it climbs the strings", () => {
+
+    // the second position starts on the D of the 10th fret; every string carries on
+    // from the one below it rather than dropping back down to the nut
+    expect(fretsByString(tabScalePosition(cMajorPosition(2)))).toEqual([
+      [10, 12, 13],
+      [10, 12, 14],
+      [10, 12, 14],
+      [10, 12, 14],
+      [12, 13, 15],
+      [12, 13, 15],
+    ])
+  })
+
+  it("climbs the scale a note at a time, never repeating or skipping one", () => {
+    const tab = tabScalePosition(cMajorPosition(1))
+
+    // eighteen notes of the major scale climb two octaves and a fourth, so the top of
+    // the position sounds 29 semitones above its bottom whichever strings they are on
+    const pitches = tab.map((n) => n.fret + [0,5,10,15,19,24][6 - n.string])
+
+    expect(pitches[0]).toEqual(8)
+    expect(pitches[pitches.length-1]).toEqual(8 + 29)
+
+    for (let i=1; i < pitches.length; i++) {
+      expect(pitches[i] - pitches[i-1]).toBeGreaterThanOrEqual(1)
+      expect(pitches[i] - pitches[i-1]).toBeLessThanOrEqual(2)
+    }
+  })
+
+  it("plays a position rooted at the nut an octave up, so it fits on the board", () => {
+
+    // E locrian b4 starts on the open sixth string, which leaves the note after its
+    // third under the nut of the fifth - the shape is played from the 12th fret instead
+    const tab = tabScalePosition(scaleFromIonianRoot(Note.F, ScaleType.MelodicMinor, 7))
+
+    expect(Math.min(...tab.map((n) => n.fret))).toBeGreaterThanOrEqual(0)
+    expect(fretsByString(tab)[0]).toEqual([12, 13, 15])
+  })
+
+  it("tabs as many notes to a string as it is asked for", () => {
+    const tab = tabScalePosition(cMajorPosition(1), {notesPerString: 2})
+
+    expect(tab).toHaveLength(12)
+    expect(fretsByString(tab)).toEqual([
+      [8, 10],
+      [7, 8],
+      [5, 7],
+      [4, 5],
+      [3, 5],
+      [1, 3],
+    ])
+  })
+
+  it("starts from the string it is given, and tabs only the strings above it", () => {
+    const tab = tabScalePosition(cMajorPosition(1), {startingString: 3})
+
+    expect(tab).toHaveLength(9)
+    expect(tab.map((n) => n.string)).toEqual([3,3,3, 2,2,2, 1,1,1])
+  })
+
+  it("tabs against the given tuning", () => {
+    const tab = tabScalePosition(cMajorPosition(1), {tuning: sevenStringTuning})
+
+    expect(tab).toHaveLength(21)
+
+    // the seventh string is a B, so the position starts from the C a fret above it
+    expect(tab[0]).toEqual({string: 7, fret: 1})
+  })
+
+  it("throws when the position runs off the end of the fret board", () => {
+    expect(() => {
+      tabScalePosition(cMajorPosition(1), {maxFret: 11})
+    }).toThrow(RangeError)
+  })
+
+  it("throws when asked to start from a string the guitar does not have", () => {
+    expect(() => {
+      tabScalePosition(cMajorPosition(1), {startingString: 7})
+    }).toThrow(RangeError)
+  })
+})
+
+describe("tabChordInPosition", () => {
+
+  const cIonian = scaleFromIonianRoot(Note.C, ScaleType.Major, 1)
+
+  const cMajorPosition = tabScalePosition(cIonian)
+
+  const tetradDegrees = [1,3,5,7]
+
+  // which note of the position each tab note is, counting from its lowest
+  function positionDegreesOf(tab: {string: number, fret: number}[]): number[] {
+    return tab.map((n) => cMajorPosition.findIndex(
+      (p) => p.string === n.string && p.fret === n.fret,
+    ) + 1)
+  }
+
+  it("takes the chord right through the position, not just its lowest four notes", () => {
+
+    // the Cmaj7 is played at every C, E, G and B the first position covers
+    expect(positionDegreesOf(
+      tabChordInPosition(cIonian, cMajorPosition, 1, tetradDegrees),
+    )).toEqual([1, 3, 5, 7, 8, 10, 12, 14, 15, 17])
+  })
+
+  it("opens on the chord tone the position reaches first, root or not", () => {
+
+    // the Fmaj7 of the first position is F A C E, but the position starts on a C, so
+    // the line runs C E F A from the bottom of the neck up
+    const tab = tabChordInPosition(cIonian, cMajorPosition, 4, tetradDegrees)
+
+    expect(positionDegreesOf(tab)).toEqual([1, 3, 4, 6, 8, 10, 11, 13, 15, 17, 18])
+
+    expect(tab.slice(0, 4)).toEqual([
+      {string: 6, fret: 8},
+      {string: 6, fret: 12},
+      {string: 5, fret: 8},
+      {string: 5, fret: 12},
+    ])
+  })
+
+  it("plays four different notes, however many times the position reaches them", () => {
+
+    for (let rootDegree = 1; rootDegree < 8; rootDegree++) {
+
+      const tab = tabChordInPosition(cIonian, cMajorPosition, rootDegree, tetradDegrees)
+
+      // the position covers between two and three of each degree of the scale
+      expect(tab.length).toBeGreaterThanOrEqual(8)
+      expect(tab.length).toBeLessThanOrEqual(12)
+
+      // every note of it is one of the four the chord is made of
+      const degrees = new Set(positionDegreesOf(tab).map((d) => (d-1)%7))
+      expect(degrees.size).toEqual(4)
+    }
+  })
+
+  it("climbs the position, never doubling back on itself", () => {
+
+    const degrees = positionDegreesOf(
+      tabChordInPosition(cIonian, cMajorPosition, 5, tetradDegrees),
+    )
+
+    for (let i=1; i < degrees.length; i++) {
+      expect(degrees[i]).toBeGreaterThan(degrees[i-1])
+    }
+  })
+
+  it("only ever returns notes the position itself holds", () => {
+    for (let rootDegree = 1; rootDegree < 8; rootDegree++) {
+      for (const note of tabChordInPosition(cIonian, cMajorPosition, rootDegree, tetradDegrees)) {
+        expect(cMajorPosition).toContainEqual(note)
+      }
+    }
+  })
+
+  it("takes only the degrees asked for", () => {
+
+    // a bare fifth, which the first position reaches three Cs and two Gs of
+    expect(positionDegreesOf(
+      tabChordInPosition(cIonian, cMajorPosition, 1, [1,5]),
+    )).toEqual([1, 5, 8, 12, 15])
+  })
+
+  it("counts a chord degree past the octave as the one it sounds", () => {
+
+    // the ninth sounds the second, so a chord reaching for it plays the same notes as
+    // one built on the second itself
+    expect(tabChordInPosition(cIonian, cMajorPosition, 1, [1,3,5,9])).toEqual(
+      tabChordInPosition(cIonian, cMajorPosition, 1, [1,2,3,5]),
+    )
+  })
+
+  it("throws when rooted below the first degree of the scale", () => {
+    expect(() => {
+      tabChordInPosition(cIonian, cMajorPosition, 0, tetradDegrees)
+    }).toThrow(RangeError)
+  })
+
+  it("throws when asked for a chord degree below the first", () => {
+    expect(() => {
+      tabChordInPosition(cIonian, cMajorPosition, 1, [0,3,5,7])
+    }).toThrow(RangeError)
   })
 })

@@ -484,6 +484,22 @@ export function diatonicIntervalBetweenScaleDegreesUpwards(
   }
 }
 
+// scaleDegreesInDiatonicInterval counts the scale degrees a diatonic interval climbs -
+// none for a unison, one for a second, and so on up.
+export function scaleDegreesInDiatonicInterval(i: DiatonicInterval): number {
+
+  switch(i) {
+    case DiatonicInterval.Unison: return 0
+    case DiatonicInterval.Second: return 1
+    case DiatonicInterval.Third: return 2
+    case DiatonicInterval.Fourth: return 3
+    case DiatonicInterval.Fifth: return 4
+    case DiatonicInterval.Sixth: return 5
+    case DiatonicInterval.Seventh: return 6
+    default: throw RangeError("cannot count the scale degrees of an unknown diatonic interval:" + i)
+  }
+}
+
 function shiftIntervals(intervals: readonly Interval[], numShifts: number): Interval[] {
 
   const retVal = [...intervals]
@@ -669,23 +685,10 @@ export function vlChordNotes(c: VoiceLeadingChord): Note[] {
 // shiftChordScaleDiatonically
 export function shiftScaleDiatonically(s: Scale, diatonicInterval: DiatonicInterval): Scale {
 
-  const scaleDegreeOfNewRoot = (() => {
-    switch(diatonicInterval) {
-      case DiatonicInterval.Unison: return 1
-      case DiatonicInterval.Second: return 2
-      case DiatonicInterval.Third: return 3
-      case DiatonicInterval.Fourth: return 4
-      case DiatonicInterval.Fifth: return 5
-      case DiatonicInterval.Sixth: return 6
-      case DiatonicInterval.Seventh: return 7
-      default: throw RangeError("cannot convert unknown diatonic interval to scale degree:" + diatonicInterval)
-    }
-  })()
-
-  const numIntervalShifts = scaleDegreeOfNewRoot - 1
+  const numIntervalShifts = scaleDegreesInDiatonicInterval(diatonicInterval)
 
   const retVal = { ...s }
-  retVal.root = scaleDegree(s, scaleDegreeOfNewRoot)
+  retVal.root = scaleDegree(s, numIntervalShifts + 1)
   retVal.intervals = shiftIntervals(s.intervals, numIntervalShifts)
   return retVal
 }
@@ -777,6 +780,47 @@ export const tetradVoicings: TetradVoicing[] = [
 
 // numTetradVoices is the number of voices in a tetrad.
 export const numTetradVoices = 4
+
+// The seventh chords a scale stacks in thirds on its degrees. Between them these cover
+// every tetrad the four diatonic scale types build on any of their degrees.
+export enum TetradQuality {
+  Major7 = "Major7",
+  Dominant7 = "Dominant7",
+  Minor7 = "Minor7",
+  MinorMajor7 = "MinorMajor7",
+  HalfDiminished7 = "HalfDiminished7",
+  Diminished7 = "Diminished7",
+  Major7_sharp5 = "Major7_sharp5",
+  Dominant7_sharp5 = "Dominant7_sharp5",
+}
+
+// tetradQualityAtScaleDegree names the seventh chord the scale stacks on one of its
+// degrees, from the semitones between that degree and the third, fifth and seventh the
+// scale puts above it.
+export function tetradQualityAtScaleDegree(s: Scale, rootDegree: number): TetradQuality {
+
+  const semiTonesAbove = (chordDegree: number) => semiTonesBetweenScaleDegreesUpwards(
+    s,
+    rootDegree,
+    rootDegree + chordDegree - 1,
+  )
+
+  const third = semiTonesAbove(3)
+  const fifth = semiTonesAbove(5)
+  const seventh = semiTonesAbove(7)
+
+  switch([third, fifth, seventh].join()) {
+    case "4,7,11": return TetradQuality.Major7
+    case "4,7,10": return TetradQuality.Dominant7
+    case "3,7,10": return TetradQuality.Minor7
+    case "3,7,11": return TetradQuality.MinorMajor7
+    case "3,6,10": return TetradQuality.HalfDiminished7
+    case "3,6,9": return TetradQuality.Diminished7
+    case "4,8,11": return TetradQuality.Major7_sharp5
+    case "4,8,10": return TetradQuality.Dominant7_sharp5
+    default: throw RangeError("cannot name the tetrad on scale degree " + rootDegree + "; no seventh chord stacks a third of " + third + " semitones under a fifth of " + fifth + " and a seventh of " + seventh)
+  }
+}
 
 function degreesPerOctave(c: VoiceLeadingChord): number {
   return c.scale.intervals.length

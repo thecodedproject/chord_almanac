@@ -11,24 +11,20 @@ import {
 } from "../components/scale_selector"
 
 import {
+  NumStringsSelector,
+  TuningDisplay,
+  tuningsByNumStrings,
+} from "../components/tuning_selector"
+
+import {
   Note,
   ScaleType,
   scaleFromIonianRoot,
-  scaleNotes,
 } from "../lib/chord_anthology"
 
 import {
-  eightStringTuning,
-  sevenStringTuning,
-  sixStringTuning,
-  tabNotesNPerString,
+  tabScalePosition,
 } from "../lib/guitar_notation"
-
-const tuningsByNumStrings: Record<number, Note[]> = {
-  6: sixStringTuning,
-  7: sevenStringTuning,
-  8: eightStringTuning,
-}
 
 export function GuitarScalePage() {
 
@@ -48,17 +44,8 @@ export function GuitarScalePage() {
     props.scale.type.value,
     props.scale.pos.value,
   )
-  const notes = scaleNotes(scale, 4)
 
-  const scaleTab = tabNotesNPerString(
-    notes,
-    {
-      notesPerString: 3,
-      trimExcess: true,
-      tuning: tuning,
-    },
-  )
-
+  const scaleTab = tabScalePosition(scale, {tuning: tuning})
 
   return (
     <>
@@ -72,45 +59,5 @@ export function GuitarScalePage() {
       <TuningDisplay tuning={tuning} />
       <ScaleSelector props={props.scale}/>
     </>
-  )
-}
-
-function NumStringsSelector(
-  {value, set}: {value: number, set: (n: number) => void}
-) {
-  const handleClick = (n: number) => (event: any) => {
-    set(n)
-    event.preventDefault()
-  }
-
-  return (
-    <div className="numStringsSelector">
-      <span>Strings:</span>
-      {Object.keys(tuningsByNumStrings).map((n) => {
-        const num = Number(n)
-        return (
-          <button
-            key={num}
-            onClick={handleClick(num)}
-            disabled={num === value}
-          >
-            {num}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
-function TuningDisplay({tuning}: {tuning: Note[]}) {
-  // display from highest string (1) to lowest, i.e. reverse of the tuning array
-  const displayed = [...tuning].reverse()
-  return (
-    <div className="tuningDisplay">
-      <span>Tuning:</span>
-      {displayed.map((note, i) => (
-        <span className="tuningNote" key={i}>{note}</span>
-      ))}
-    </div>
   )
 }

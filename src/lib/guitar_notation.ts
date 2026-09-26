@@ -1,5 +1,6 @@
 import {
   Note,
+  Scale,
   VoiceLeadingChord,
   scaleDegree,
   semiTonesBetweenNotesUpwards,
@@ -28,6 +29,13 @@ export interface TabNotesNPerStringOptions {
   notesPerString?: number
   startingString?: number
   trimExcess?: boolean
+  tuning?: Note[]
+}
+
+export interface TabScalePositionOptions {
+  notesPerString?: number
+  startingString?: number
+  maxFret?: number
   tuning?: Note[]
 }
 
@@ -233,4 +241,113 @@ export function tabNotesNPerString(
   //console.log("*** returned val:", retVal)
 
   return retVal
+}
+
+// tabScalePosition tabs one position of a scale: every note of it which falls under the
+// hand when the scale is climbed a fixed number of notes to a string, from its root on
+// the given string up to the top string.
+//
+// The scale climbs without a break, so each note is fretted where it sounds its own
+// pitch in that climb rather than wherever its note first comes up on the string - which
+// is what keeps the whole position under the one hand.
+//
+// A position rooted low on the neck leaves the notes on the strings above it under the
+// nut; it is played an octave up instead, which is the same shape further up the board.
+//
+// The notes come back in the order they are played, so the nth note of the position is
+// the nth degree of the scale.
+export function tabScalePosition(
+  s: Scale,
+  options: TabScalePositionOptions = {},
+): TabNote[] {
+
+  const {
+    notesPerString = 3,
+    tuning = defaultTuning,
+    startingString = tuning.length,
+    maxFret = 24,
+  } = options
+
+  if (startingString < 1 || startingString > tuning.length) {
+    throw new RangeError("cannot tab a position from string " + startingString + "; it is not on a " + tuning.length + " string guitar")
+  }
+
+  const openPitches = openStringPitches(tuning)
+
+  const openPitchOf = (string: number) => openPitches[tuning.length - string]
+
+  // each string carries its own run of the scale, from the one the position starts on
+  // up to the top string
+  const stringOfNote = (iNote: number) => startingString - Math.floor(iNote/notesPerString)
+
+  // the position starts from its root played as low as it will go on the string it
+  // starts from, and climbs the scale from there
+  const rootPitch = openPitchOf(startingString) + semiTonesBetweenNotesUpwards(
+    tuning[tuning.length - startingString],
+    s.root,
+  )
+
+  const pitchOfNote = (iNote: number) =>
+    rootPitch + semiTonesBetweenScaleDegreesUpwards(s, 1, iNote + 1)
+
+  const notes = [...Array(notesPerString * startingString)].map((_, iNote) => ({
+    string: stringOfNote(iNote),
+    fret: pitchOfNote(iNote) - openPitchOf(stringOfNote(iNote)),
+  }))
+
+  const lowestFret = Math.min(...notes.map((n) => n.fret))
+
+  const octavesUp = lowestFret < 0 ? Math.ceil(-lowestFret/12) : 0
+
+  return notes.map((n, iNote) => {
+
+    const fret = n.fret + (octavesUp * 12)
+
+    if (fret > maxFret) {
+      throw new RangeError("cannot tab the position; scale degree " + (iNote+1) + " of it lands beyond the " + maxFret + "th fret of string " + n.string + " (at fret " + fret + ")")
+    }
+
+    return {
+      string: n.string,
+      fret: fret,
+    }
+  })
+}
+
+// tabChordInPosition picks the notes of a chord out of a tabbed scale position.
+//
+// The chord is rooted on `rootDegree` of the scale and built out of the degrees
+// `chordDegrees` counted up from that root. Every note of the position which sounds one
+// of the chord's tones is tabbed, from the bottom of the position up to the top, so the
+// chord is played as a melodic line right through it.
+//
+// The line runs through the position rather than starting from the chord, so it opens
+// on whichever chord tone the position reaches first - which is only the root when the
+// chord is rooted on the lowest degree the position covers.
+export function tabChordInPosition(
+  s: Scale,
+  position: TabNote[],
+  rootDegree: number,
+  chordDegrees: number[],
+): TabNote[] {
+
+  if (rootDegree < 1) {
+    throw new RangeError("cannot tab a chord rooted below the first scale degree:" + rootDegree)
+  }
+
+  const degreesPerOctave = s.intervals.length
+
+  // the degrees of the scale the chord is made of, with the octaves taken off so that
+  // every note of the position can be read against them
+  const chordTones = new Set(chordDegrees.map((chordDegree) => {
+
+    if (chordDegree < 1) {
+      throw new RangeError("cannot tab a chord degree below the first:" + chordDegree)
+    }
+
+    return ((rootDegree + chordDegree - 2)%degreesPerOctave) + 1
+  }))
+
+  // the nth note of a position is the nth degree of its scale
+  return position.filter((_, iNote) => chordTones.has((iNote%degreesPerOctave) + 1))
 }
