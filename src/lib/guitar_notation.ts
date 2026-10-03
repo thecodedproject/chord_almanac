@@ -181,6 +181,114 @@ export function tabNotesForVoicing(
   throw new RangeError("cannot tab voicing (" + voices + "); it does not fit on the fret board across strings " + strings)
 }
 
+// tabNotesForVoicingCompact tabs a chord voicing one note per string, like
+// tabNotesForVoicing, but fingers it in the most compact shape it can rather than at the
+// exact pitches of the voicing.
+//
+// Why there are two of these: tabNotesForVoicing sounds every voice at its exact
+// interval above the lowest one. On strings that suit the voicing that is what you want,
+// but on strings with a gap the voicing does not fill, it can strand a note far from the
+// rest of the shape. The drop 2 Dm7 in 2nd inversion (D A C F) on strings 6 5 4 1 puts
+// its F a third above the C, which on the 1st string is the 1st fret - nine frets down
+// from the 10th to 12th the rest of the chord is fingered at - where the F an octave up,
+// at the 13th fret, sits right alongside them.
+//
+// So here each voice may be played in whichever octave of its note gives the smallest
+// stretch. The one thing kept from the voicing is the order it stacks its chord tones
+// in: the notes still have to climb from the lowest string to the highest, so a chart is
+// still labelled by the right order of chord tones. Between shapes of the same stretch,
+// the one lower on the neck is taken.
+//
+// The stretch is measured with open strings counted at the nut. Leaving them out, as
+// judging whether a shape is playable does, would make an open string free wherever the
+// rest of the shape is, and a voicing fingered at the 10th to 14th frets could then take
+// its bass from an open string ten frets away rather than an octave up alongside it.
+//
+// The price is a search: every octave each voice can be played at on its string, which
+// is two or three of them over 24 frets, so a few dozen shapes for a tetrad against the
+// handful tabNotesForVoicing tries.
+export function tabNotesForVoicingCompact(
+  c: VoiceLeadingChord,
+  options: TabNotesForVoicingOptions = {},
+): TabNote[] {
+
+  const {
+    tuning = defaultTuning,
+    maxFret = 24,
+  } = options
+
+  const voices = [...c.tones].sort((a, b) => a-b)
+  const strings = options.strings ?? lowestStrings(tuning, voices.length)
+
+  if (strings.length < voices.length) {
+    throw new RangeError("cannot tab voicing of " + voices.length + " voices on " + strings.length + " strings")
+  }
+
+  for (let i=0; i < voices.length; i++) {
+    if (strings[i] < 1 || strings[i] > tuning.length) {
+      throw new RangeError("cannot tab voicing; string " + strings[i] + " is not on a " + tuning.length + " string guitar")
+    }
+    if (i > 0 && strings[i] >= strings[i-1]) {
+      throw new RangeError("cannot tab voicing; strings must be given from the lowest sounding up, got:" + strings)
+    }
+  }
+
+  const openPitches = openStringPitches(tuning)
+
+  // every fret each voice's note can be played at on its string
+  const fretOptions = voices.map((voice, i) => {
+    const stringNote = tuning[tuning.length - strings[i]]
+    const frets: number[] = []
+    for (
+      let fret = semiTonesBetweenNotesUpwards(stringNote, scaleDegree(c.scale, voice));
+      fret <= maxFret;
+      fret += 12
+    ) {
+      frets.push(fret)
+    }
+    return frets
+  })
+
+  // how far a shape reaches along the neck, open strings and all, and how high up it
+  const spanOf = (frets: number[]) => Math.max(...frets) - Math.min(...frets)
+  const highestOf = (frets: number[]) => Math.max(...frets)
+
+  let best: number[] | undefined
+
+  // tries every octave of each voice in turn, from the lowest string up, dropping any
+  // shape as soon as one of its notes fails to climb above the one before
+  const search = (frets: number[], lastPitch: number) => {
+
+    const i = frets.length
+
+    if (i == voices.length) {
+      if (
+        best == undefined ||
+        spanOf(frets) < spanOf(best) ||
+        (spanOf(frets) == spanOf(best) && highestOf(frets) < highestOf(best))
+      ) {
+        best = [...frets]
+      }
+      return
+    }
+
+    for (const fret of fretOptions[i]) {
+      const pitch = openPitches[tuning.length - strings[i]] + fret
+      if (pitch > lastPitch) {
+        search([...frets, fret], pitch)
+      }
+    }
+  }
+
+  search([], -Infinity)
+
+  if (best == undefined) {
+    throw new RangeError("cannot tab voicing (" + voices + "); it does not fit on the fret board across strings " + strings)
+  }
+
+  return best.map((fret, i) => ({string: strings[i], fret: fret}))
+}
+
 export function tabNotesNPerString(
   notes: Note[],
   options: TabNotesNPerStringOptions = {},

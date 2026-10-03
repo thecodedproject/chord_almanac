@@ -128,8 +128,10 @@ describe("GuitarHarmonicTetrads", () => {
     const {container} = render(<Page />)
 
     expect(container.querySelectorAll(".stringSetSelector button")).toHaveLength(15)
+    // the neighbouring strings, and two sets skipping strings, on which a note stranded
+    // away from the rest of the shape is fingered an octave up
     expect(textOf(container, ".stringSetSelector button.playable")).toEqual(
-      ["6 5 4 3", "5 4 3 2", "4 3 2 1"],
+      ["6 5 4 3", "6 5 2 1", "6 3 2 1", "5 4 3 2", "4 3 2 1"],
     )
 
     expect(container.querySelector(".playableKey")?.textContent).toEqual(" = playable")

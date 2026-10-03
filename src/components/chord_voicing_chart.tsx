@@ -9,7 +9,7 @@ import {
 
 import {
   TabNote,
-  tabNotesForVoicing,
+  tabNotesForVoicingCompact,
 } from '../lib/guitar_notation'
 
 import {
@@ -35,7 +35,7 @@ export function ChordVoicingChart(
   // the cell as empty rather than losing the rest of the table
   let tabNotes: TabNote[] | undefined
   try {
-    tabNotes = tabNotesForVoicing(
+    tabNotes = tabNotesForVoicingCompact(
       voicedChord,
       {
         strings: strings,

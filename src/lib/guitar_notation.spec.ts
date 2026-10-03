@@ -10,6 +10,7 @@ import {
   sevenStringTuning,
   tabChordInPosition,
   tabNotesForVoicing,
+  tabNotesForVoicingCompact,
   tabNotesNPerString,
   tabScalePosition,
 } from './guitar_notation'
@@ -433,6 +434,112 @@ describe("tabNotesForVoicing", () => {
     expect(() => tabNotesForVoicing(
       {scale: cMaj, tones: [1,22]},
       {strings: [2,1]},
+    )).toThrow(RangeError)
+  })
+})
+
+describe("tabNotesForVoicingCompact", () => {
+
+  const cMaj = diatonicScale(Note.C, Mode.Ionian)
+  const dDorian = diatonicScale(Note.D, Mode.Dorian)
+
+  const fretSpanOf = (tab: {fret: number}[]) => {
+    const fretted = tab.map((n) => n.fret).filter((f) => f > 0)
+    return Math.max(...fretted) - Math.min(...fretted)
+  }
+
+  it("takes a stranded note up an octave to sit with the rest of the shape", () => {
+    // the drop 2 Dm7 in 2nd inversion, D A C F: tabbed at its exact pitches its F is
+    // left on the 1st fret, nine frets below the rest of the chord
+    const dm7 = {scale: dDorian, tones: [1,5,7,10]}
+    const strings = [6,5,4,1]
+
+    expect(tabNotesForVoicing(dm7, {strings: strings})).toEqual([
+      {string: 6, fret: 10},
+      {string: 5, fret: 12},
+      {string: 4, fret: 10},
+      {string: 1, fret: 1},
+    ])
+
+    expect(tabNotesForVoicingCompact(dm7, {strings: strings})).toEqual([
+      {string: 6, fret: 10},
+      {string: 5, fret: 12},
+      {string: 4, fret: 10},
+      {string: 1, fret: 13},
+    ])
+  })
+
+  it("plays an open string only when the rest of the shape is down by the nut", () => {
+    // the drop 2 Cmaj7 in 3rd inversion, E B C G: its E could be the open 6th string,
+    // but the rest of the chord is up at the 10th to 14th frets, so it is played at the
+    // 12th alongside them
+    expect(tabNotesForVoicingCompact(
+      {scale: cMaj, tones: [3,7,8,12]},
+      {strings: [6,5,4,3]},
+    )).toEqual([
+      {string: 6, fret: 12},
+      {string: 5, fret: 14},
+      {string: 4, fret: 10},
+      {string: 3, fret: 12},
+    ])
+
+    // whereas the open Cmaj7 shape keeps its open strings
+    expect(tabNotesForVoicingCompact(
+      {scale: cMaj, tones: [1,3,5,7]},
+      {strings: [5,4,3,2]},
+    )).toEqual([
+      {string: 5, fret: 3},
+      {string: 4, fret: 2},
+      {string: 3, fret: 0},
+      {string: 2, fret: 0},
+    ])
+  })
+
+  it("tabs a voicing which suits its strings just as tabNotesForVoicing does", () => {
+    for (const tones of [[1,3,5,7], [3,8,12,14], [5,8,10,14]]) {
+      const chord = {scale: cMaj, tones: tones}
+      expect(tabNotesForVoicingCompact(chord, {strings: [5,4,3,2]})).toEqual(
+        tabNotesForVoicing(chord, {strings: [5,4,3,2]}),
+      )
+    }
+  })
+
+  it("never stretches further than tabNotesForVoicing", () => {
+    for (const strings of [[6,5,4,1], [6,5,2,1], [6,3,2,1], [6,4,3,1]]) {
+      for (const tones of [[1,3,5,7], [5,8,10,14], [3,8,12,14], [1,5,10,14]]) {
+        const chord = {scale: cMaj, tones: tones}
+        expect(fretSpanOf(tabNotesForVoicingCompact(chord, {strings: strings})))
+          .toBeLessThanOrEqual(fretSpanOf(tabNotesForVoicing(chord, {strings: strings})))
+      }
+    }
+  })
+
+  it("keeps the notes climbing from the lowest string to the highest", () => {
+    const openPitches: Record<number, number> = {6: 0, 5: 5, 4: 10, 3: 15, 2: 19, 1: 24}
+
+    for (const strings of [[6,5,4,1], [6,5,2,1], [6,3,2,1], [5,4,3,2]]) {
+      for (const tones of [[1,3,5,7], [5,8,10,14], [3,8,12,14], [1,5,10,14]]) {
+        const pitches = tabNotesForVoicingCompact(
+          {scale: cMaj, tones: tones},
+          {strings: strings},
+        ).map((n) => openPitches[n.string] + n.fret)
+
+        expect(pitches).toEqual([...pitches].sort((a, b) => a-b))
+        expect(new Set(pitches).size).toEqual(pitches.length)
+      }
+    }
+  })
+
+  it("takes the shape lower on the neck between two of the same stretch", () => {
+    // a C on its own can be played at the 8th or the 20th fret of the 6th string
+    expect(tabNotesForVoicingCompact({scale: cMaj, tones: [1]}, {strings: [6]}))
+      .toEqual([{string: 6, fret: 8}])
+  })
+
+  it("throws when the voicing does not fit on the strings", () => {
+    expect(() => tabNotesForVoicingCompact(
+      {scale: cMaj, tones: [1,3,5,7]},
+      {strings: [6,5,4]},
     )).toThrow(RangeError)
   })
 })

@@ -11,7 +11,7 @@ import {
 import {
   TabNote,
   defaultTuning,
-  tabNotesForVoicing,
+  tabNotesForVoicingCompact,
 } from './guitar_notation'
 
 // How comfortably the hand can finger a chord, judged by how far it has to stretch.
@@ -92,7 +92,7 @@ export function tetradVoicingPlayability(
 
       try {
         playabilities.push(chordPlayability(
-          tabNotesForVoicing(voicedChord, {strings: strings, tuning: tuning}),
+          tabNotesForVoicingCompact(voicedChord, {strings: strings, tuning: tuning}),
         ))
       } catch (e) {
         if (!(e instanceof RangeError)) {
