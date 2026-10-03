@@ -9,7 +9,7 @@
 
   display: grid;
   grid-template-columns: var(--col-label-width) auto;
-  grid-template-rows: repeat(var(--num-chords), auto);
+  grid-template-rows: auto repeat(var(--num-chords), auto);
 
   /* the table is as wide as the one chart in each of its rows, no wider */
   width: max-content;
@@ -24,10 +24,39 @@
   border-bottom: 1px solid var(--table-line);
 }
 
+.guitarMelodicTetradsTable .cornerCell {
+  grid-row: 1;
+  grid-column: 1;
+
+  border-right: 1px solid var(--table-header-line);
+  border-bottom: 1px solid var(--table-header-line);
+}
+
+.guitarMelodicTetradsTable .positionLabel {
+  grid-row: 1;
+  grid-column: 2;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 0.4em 0;
+
+  border-bottom: 1px solid var(--table-header-line);
+}
+
+.guitarMelodicTetradsTable .positionLabel .positionName {
+  font-weight: bold;
+}
+
+.guitarMelodicTetradsTable .positionLabel .modeName {
+  color: #555;
+}
+
 .guitarMelodicTetradsTable .chordLabel {
   --row: 1;
 
-  grid-row: var(--row);
+  grid-row: calc(1 + var(--row));
   grid-column: 1;
 
   display: flex;
@@ -58,7 +87,7 @@
 .guitarMelodicTetradsTable .chartCell {
   --row: 1;
 
-  grid-row: var(--row);
+  grid-row: calc(1 + var(--row));
   grid-column: 2;
 
   display: flex;

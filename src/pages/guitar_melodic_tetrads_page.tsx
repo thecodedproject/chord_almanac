@@ -9,6 +9,10 @@ import {
 } from "../components/guitar_melodic_tetrads_table"
 
 import {
+  CycleSelector,
+} from "../components/cycle_selector"
+
+import {
   ScaleSelector,
 } from "../components/scale_selector"
 
@@ -19,6 +23,7 @@ import {
 } from "../components/tuning_selector"
 
 import {
+  DiatonicInterval,
   Note,
   ScaleType,
   scaleFromIonianRoot,
@@ -33,19 +38,21 @@ export function GuitarMelodicTetradsPage() {
       type: newState(ScaleType.Major),
     },
     numStrings: newState(6),
+    cycle: newState(DiatonicInterval.Fourth),
   }
 
   const tuning = tuningsByNumStrings[props.numStrings.value]
 
+  // the table is given the scale from its first degree, and finds the position from it
   const scale = scaleFromIonianRoot(
     props.scale.rootNote.value,
     props.scale.type.value,
-    props.scale.pos.value,
+    1,
   )
 
   return (
     <div className="guitarMelodicTetrads">
-      <h2>Guitar melodic tetrads</h2>
+      <h2>Melodic tetrads</h2>
 
       {/* the controls sit above the table so that they stay put as it changes size */}
       <NumStringsSelector
@@ -53,9 +60,15 @@ export function GuitarMelodicTetradsPage() {
         set={props.numStrings.set}
       />
       <TuningDisplay tuning={tuning} />
+      <CycleSelector value={props.cycle.value} set={props.cycle.set} />
       <ScaleSelector props={props.scale}/>
 
-      <GuitarMelodicTetradsTable scale={scale} tuning={tuning} />
+      <GuitarMelodicTetradsTable
+        scale={scale}
+        tuning={tuning}
+        position={props.scale.pos.value}
+        chordInterval={props.cycle.value}
+      />
     </div>
   )
 }

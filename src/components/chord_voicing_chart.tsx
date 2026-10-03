@@ -1,11 +1,9 @@
-import "./tetrad_voicing_chart.css"
+import "./chord_voicing_chart.css"
 
 import {CSSProperties} from "react";
 
 import {
-  TetradVoicing,
   VoiceLeadingChord,
-  tetradVoicing,
   voicingScaleDegrees,
 } from '../lib/chord_anthology'
 
@@ -18,24 +16,20 @@ import {
   GuitarFingerChart,
 } from './guitar_finger_chart'
 
-// TetradVoicingChart draws one voicing of one tetrad: the order it stacks its chord
-// tones in, over the finger chart which plays it.
+// ChordVoicingChart draws one voicing of a chord - a triad or a tetrad, already voiced:
+// the order it stacks its chord tones in, over the finger chart which plays it.
 //
 // It is laid out by whoever draws it - the `style` given is put on the chart itself, so
 // a table can place the chart in its grid. A `label` is drawn above the chart, for a
 // table whose columns do not name what each of their charts is.
-export function TetradVoicingChart(
-  {chord, strings, voicing, inversion, label, style}: {
-    chord: VoiceLeadingChord,
+export function ChordVoicingChart(
+  {voicedChord, strings, label, style}: {
+    voicedChord: VoiceLeadingChord,
     strings: number[],
-    voicing: TetradVoicing,
-    inversion: number,
     label?: string,
     style?: CSSProperties,
   }
 ) {
-
-  const voicedChord = tetradVoicing(chord, voicing, inversion)
 
   // a voicing spread wider than these strings can reach cannot be played on them; show
   // the cell as empty rather than losing the rest of the table

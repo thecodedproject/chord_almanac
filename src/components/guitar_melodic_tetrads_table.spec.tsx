@@ -23,14 +23,30 @@ import {
 
 const cIonian = scaleFromIonianRoot(Note.C, ScaleType.Major, 1)
 
-function renderTable(scale = cIonian) {
+function renderTable(position = 1) {
   return render(
-    <GuitarMelodicTetradsTable scale={scale} tuning={sixStringTuning} />,
+    <GuitarMelodicTetradsTable
+      scale={cIonian}
+      tuning={sixStringTuning}
+      position={position}
+    />,
   )
 }
 
-function textOf(container: HTMLElement, selector: string): (string | null)[] {
+function textOf(container: Element, selector: string): (string | null)[] {
   return Array.from(container.querySelectorAll(selector)).map((e) => e.textContent)
+}
+
+// the charts of the table, from the first chord down
+function charts(container: HTMLElement): HTMLElement[] {
+  return Array.from(container.querySelectorAll<HTMLElement>(".chartCell"))
+}
+
+function placeOf(n: Element): string {
+  return [
+    (n as HTMLElement).style.getPropertyValue("--string"),
+    (n as HTMLElement).style.getPropertyValue("--fret"),
+  ].join()
 }
 
 describe("GuitarMelodicTetradsTable", () => {
@@ -43,6 +59,25 @@ describe("GuitarMelodicTetradsTable", () => {
 
     expect(container.querySelectorAll(".chartCell")).toHaveLength(7)
     expect(container.querySelectorAll(".chordLabel")).toHaveLength(7)
+  })
+
+  it("names the position, and the mode it is read as", () => {
+    const modes = [
+      "Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian", "Locrian",
+    ]
+
+    for (let position = 1; position <= 7; position++) {
+      const {container, unmount} = renderTable(position)
+
+      expect(textOf(container, ".positionLabel .positionName")).toEqual(
+        ["Position " + position],
+      )
+      expect(textOf(container, ".positionLabel .modeName")).toEqual(
+        [modes[position-1]],
+      )
+
+      unmount()
+    }
   })
 
   it("takes the chords of the scale a fourth at a time, starting from its first", () => {
@@ -72,11 +107,21 @@ describe("GuitarMelodicTetradsTable", () => {
   it("puts each chord in its own row", () => {
     const {container} = renderTable()
 
-    const rows = Array.from(
-      container.querySelectorAll<HTMLElement>(".chartCell"),
-    ).map((c) => c.style.getPropertyValue("--row"))
+    const rows = charts(container).map((c) => c.style.getPropertyValue("--row"))
 
     expect(rows).toEqual(["1", "2", "3", "4", "5", "6", "7"])
+  })
+
+  it("keeps the chords of the scale in its order in any position of it", () => {
+    const {container} = renderTable(2)
+
+    // the second position of C major still runs from the Cmaj7, numbered as C major's
+    expect(textOf(container, ".chordLabel .chordDegree")).toEqual(
+      ["I", "IV", "VII", "III", "VI", "II", "V"],
+    )
+    expect(textOf(container, ".chordLabel .chordName")).toEqual(
+      ["Cmaj7", "Fmaj7", "Bm7♭5", "Em7", "Am7", "Dm7", "G7"],
+    )
   })
 
   it("runs each chord right through its position", () => {
@@ -95,17 +140,9 @@ describe("GuitarMelodicTetradsTable", () => {
   it("opens each chord on the note its position reaches first, root or not", () => {
     const {container} = renderTable()
 
-    const opensOn = Array.from(
-      container.querySelectorAll<HTMLElement>(".chartCell"),
-    ).map((chart) => {
-
-      const first = chart.querySelector<HTMLElement>(".note:not(.backgroundNote)")
-
-      return [
-        first?.style.getPropertyValue("--string"),
-        first?.style.getPropertyValue("--fret"),
-      ].join()
-    })
+    const opensOn = charts(container).map((chart) =>
+      placeOf(chart.querySelector(".note:not(.backgroundNote)")!),
+    )
 
     // the first position of C major opens on its C, which the Cmaj7, the Fmaj7 and the
     // Am7 all take as their first note whichever of their tones it is
@@ -128,11 +165,9 @@ describe("GuitarMelodicTetradsTable", () => {
   it("draws every chart over the same stretch of the neck", () => {
     const {container} = renderTable()
 
-    const charts = Array.from(
-      container.querySelectorAll<HTMLElement>(".chartCell .guitarFingerChart"),
+    const labels = charts(container).map(
+      (c) => textOf(c, ".labelArea .label").join(" to "),
     )
-
-    const labels = charts.map((c) => textOf(c, ".labelArea .label").join(" to "))
 
     // the first position of C major reaches from the 8th fret to the 13th
     expect(new Set(labels).size).toEqual(1)
@@ -144,11 +179,6 @@ describe("GuitarMelodicTetradsTable", () => {
 
     for (const chart of Array.from(container.querySelectorAll(".chartCell"))) {
 
-      const placeOf = (n: Element) => [
-        (n as HTMLElement).style.getPropertyValue("--string"),
-        (n as HTMLElement).style.getPropertyValue("--fret"),
-      ].join()
-
       const position = new Set(
         Array.from(chart.querySelectorAll(".note.backgroundNote")).map(placeOf),
       )
@@ -156,6 +186,38 @@ describe("GuitarMelodicTetradsTable", () => {
       for (const note of Array.from(chart.querySelectorAll(".note:not(.backgroundNote)"))) {
         expect(position).toContain(placeOf(note))
       }
+    }
+  })
+
+  it("plays the same chord in every position of the scale", () => {
+
+    // the pitch class of each open string in standard tuning, from the 6th string up
+    const openPitchClasses: Record<string, number> = {
+      "6": 4, "5": 9, "4": 2, "3": 7, "2": 11, "1": 4,
+    }
+
+    // a chart numbers its frets from the lowest it draws, which its first label names
+    const pitchClassesIn = (chart: HTMLElement) => {
+
+      const lowestFret = parseInt(chart.querySelector(".labelArea .label")!.textContent!)
+
+      return new Set(
+        Array.from(chart.querySelectorAll<HTMLElement>(".note:not(.backgroundNote)")).map(
+          (n) => (
+            openPitchClasses[n.style.getPropertyValue("--string")] +
+            lowestFret + Number(n.style.getPropertyValue("--fret")) - 1
+          )%12,
+        ),
+      )
+    }
+
+    // every position plays the Cmaj7 of the first row from its C, E, G and B
+    for (let position = 1; position <= 7; position++) {
+      const {container, unmount} = renderTable(position)
+
+      expect(pitchClassesIn(charts(container)[0])).toEqual(new Set([0, 4, 7, 11]))
+
+      unmount()
     }
   })
 
@@ -170,17 +232,6 @@ describe("GuitarMelodicTetradsTable", () => {
 
     expect(textOf(container, ".chordLabel .chordDegree")).toEqual(
       ["I", "II", "III", "IV", "V", "VI", "VII"],
-    )
-  })
-
-  it("reads the chords from whichever mode of the scale it is given", () => {
-    const {container} = renderTable(
-      scaleFromIonianRoot(Note.C, ScaleType.Major, 2),
-    )
-
-    // the second position is read from D dorian, so its first chord is the Dm7
-    expect(textOf(container, ".chordLabel .chordName")).toEqual(
-      ["Dm7", "G7", "Cmaj7", "Fmaj7", "Bm7♭5", "Em7", "Am7"],
     )
   })
 })

@@ -7,6 +7,7 @@ import {
   ScaleType,
   TetradQuality,
   TetradVoicing,
+  TriadVoicing,
   VoiceLeadingChord,
   createCycle,
   diatonicIntervalBetweenScaleDegreesUpwards,
@@ -18,6 +19,7 @@ import {
   modeForScale,
   normaliseVoicing,
   numTetradVoices,
+  numTriadVoices,
   raiseVoices,
   scaleDegree,
   scaleDegreeNotes,
@@ -33,6 +35,8 @@ import {
   tetradQualityAtScaleDegree,
   tetradVoicing,
   tetradVoicings,
+  triadVoicing,
+  triadVoicings,
   vlChordNotes,
   voicingScaleDegrees,
 } from "./chord_anthology"
@@ -1484,6 +1488,49 @@ describe("tetradVoicing", () => {
       tones: [1,3,5],
     }
     expect(() => tetradVoicing(cMaj, TetradVoicing.Drop2, 0)).toThrow(RangeError)
+  })
+})
+
+describe("triadVoicing", () => {
+
+  const cMaj: VoiceLeadingChord = {
+    scale: diatonicScale(Note.C, Mode.Ionian),
+    tones: [1,3,5],
+  }
+
+  it.each(
+    [
+      [TriadVoicing.Close, 0, [1,3,5],    [Note.C, Note.E, Note.G]],
+      [TriadVoicing.Close, 1, [3,5,8],    [Note.E, Note.G, Note.C]],
+      [TriadVoicing.Close, 2, [5,8,10],   [Note.G, Note.C, Note.E]],
+
+      // the open voicing keeps the bass of the close voicing it opens out
+      [TriadVoicing.Open, 0, [1,5,10],    [Note.C, Note.G, Note.E]],
+      [TriadVoicing.Open, 1, [3,8,12],    [Note.E, Note.C, Note.G]],
+      [TriadVoicing.Open, 2, [5,10,15],   [Note.G, Note.E, Note.C]],
+    ],
+  )("gives the %s voicing in inversion %s", (
+    voicing,
+    inversion,
+    expectedTones,
+    expectedNotes,
+  ) => {
+    const voiced = triadVoicing(cMaj, voicing, inversion)
+    expect(voiced.tones).toEqual(expectedTones)
+    expect(vlChordNotes(voiced)).toEqual(expectedNotes)
+  })
+
+  it("gives a voicing per inversion for every voicing", () => {
+    expect(triadVoicings.length).toEqual(2)
+    expect(numTriadVoices).toEqual(3)
+  })
+
+  it("throws when the chord is not a triad", () => {
+    const cMaj7: VoiceLeadingChord = {
+      scale: diatonicScale(Note.C, Mode.Ionian),
+      tones: [1,3,5,7],
+    }
+    expect(() => triadVoicing(cMaj7, TriadVoicing.Open, 0)).toThrow(RangeError)
   })
 })
 

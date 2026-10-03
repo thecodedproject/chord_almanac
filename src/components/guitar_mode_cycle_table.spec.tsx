@@ -64,8 +64,11 @@ describe("GuitarModeCycleTable", () => {
       "Mixolydian",
     ])
 
-    expect(textOf(container, ".modeLabel .modeRoot")).toEqual(
-      ["C", "F", "B", "E", "A", "D", "G"],
+    expect(textOf(container, ".modeLabel .chordDegree")).toEqual(
+      ["I", "IV", "VII", "III", "VI", "II", "V"],
+    )
+    expect(textOf(container, ".modeLabel .chordName")).toEqual(
+      ["Cmaj7", "Fmaj7", "Bm7♭5", "Em7", "Am7", "Dm7", "G7"],
     )
   })
 

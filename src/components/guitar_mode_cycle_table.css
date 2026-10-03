@@ -54,11 +54,16 @@
   border-right: 1px solid var(--table-header-line);
 }
 
-.guitarModeCycleTable .modeLabel .modeName {
+.guitarModeCycleTable .modeLabel .chordDegree {
+  font-size: 1.3em;
   font-weight: bold;
 }
 
-.guitarModeCycleTable .modeLabel .modeRoot {
+.guitarModeCycleTable .modeLabel .chordName {
+  font-weight: bold;
+}
+
+.guitarModeCycleTable .modeLabel .modeName {
   color: #555;
 }
 

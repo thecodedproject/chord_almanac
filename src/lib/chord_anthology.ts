@@ -781,6 +781,22 @@ export const tetradVoicings: TetradVoicing[] = [
 // numTetradVoices is the number of voices in a tetrad.
 export const numTetradVoices = 4
 
+// The ways a triad can be voiced: its three voices packed into an octave, or spread out
+// over more than one.
+export enum TriadVoicing {
+  Close = "Close",
+  Open = "Open",
+}
+
+// triadVoicings lists every triad voicing, in the order they are conventionally shown.
+export const triadVoicings: TriadVoicing[] = [
+  TriadVoicing.Close,
+  TriadVoicing.Open,
+]
+
+// numTriadVoices is the number of voices in a triad.
+export const numTriadVoices = 3
+
 // The seventh chords a scale stacks in thirds on its degrees. Between them these cover
 // every tetrad the four diatonic scale types build on any of their degrees.
 export enum TetradQuality {
@@ -978,6 +994,37 @@ export function tetradVoicing(
   }
 
   return applyTetradVoicing(invertVoicing(c, inversion), voicing)
+}
+
+// applyTriadVoicing spreads the triad's voices out into the given voicing.
+export function applyTriadVoicing(c: VoiceLeadingChord, voicing: TriadVoicing): VoiceLeadingChord {
+
+  switch(voicing) {
+    case TriadVoicing.Close: return normaliseVoicing({...c, tones: sortedVoices(c)})
+
+    // the middle voice goes up an octave, over the top voice. The lowest voice stays
+    // where it is, so the open voicing keeps the bass of the close one it is made from:
+    // the close root position [1,3,5] opens out to [1,5,3].
+    case TriadVoicing.Open: return raiseVoices(c, [2])
+    default: throw RangeError("cannot voice triad for unknown voicing:" + voicing)
+  }
+}
+
+// triadVoicing returns the given inversion of the given voicing of a triad.
+//
+// The triad's tones are taken to be its close voicing. The chord is inverted first
+// and the voicing is then spread out over that inversion.
+export function triadVoicing(
+  c: VoiceLeadingChord,
+  voicing: TriadVoicing,
+  inversion: number,
+): VoiceLeadingChord {
+
+  if (c.tones.length != numTriadVoices) {
+    throw new RangeError("cannot voice a triad of " + c.tones.length + " voices")
+  }
+
+  return applyTriadVoicing(invertVoicing(c, inversion), voicing)
 }
 
 export function createCycle(

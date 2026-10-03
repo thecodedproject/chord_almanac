@@ -35,5 +35,19 @@ describe("ScaleSelector", () => {
 
     render(<ScaleSelector props={props}/>)
   })
-})
 
+  it("picks out the scale type, root and position currently chosen", () => {
+
+    const props = {
+      rootNote: {value: Note.Eb, set: jest.fn()},
+      pos: {value: 3, set: jest.fn()},
+      type: {value: ScaleType.MelodicMinor, set: jest.fn()},
+    }
+
+    const {container} = render(<ScaleSelector props={props}/>)
+
+    expect(
+      Array.from(container.querySelectorAll("button.selected")).map((b) => b.textContent),
+    ).toEqual(["Melodic minor", "Eb", "III"])
+  })
+})

@@ -1,9 +1,9 @@
-.guitarTetradInversionsTable {
+.guitarChordInversionsTable {
 
   --row-label-height: 2em;
   --col-label-width: 6em;
 
-  --num-inversions: 4; /* Each inversion is in it's own column */
+  --num-inversions: 4; /* Each inversion is in it's own column - one per chord voice */
   --num-voicings: 6;   /* Each voicing is in it's own row */
 
   --table-line: #e8e8e8;
@@ -18,12 +18,12 @@
 }
 
 /* every cell carries its own right and bottom line, so the grid is ruled throughout */
-.guitarTetradInversionsTable > * {
+.guitarChordInversionsTable > * {
   border-right: 1px solid var(--table-line);
   border-bottom: 1px solid var(--table-line);
 }
 
-.guitarTetradInversionsTable .voicingLabel {
+.guitarChordInversionsTable .voicingLabel {
   --voicing: 1;
 
   grid-row: calc(1 + var(--voicing));
@@ -39,7 +39,7 @@
   border-right: 1px solid var(--table-header-line);
 }
 
-.guitarTetradInversionsTable .inversionLabel {
+.guitarChordInversionsTable .inversionLabel {
   --inversion: 1;
 
   grid-row: 1;
@@ -54,7 +54,7 @@
   border-bottom: 1px solid var(--table-header-line);
 }
 
-.guitarTetradInversionsTable .fingerChart {
+.guitarChordInversionsTable .fingerChart {
   --inversion: 1;
   --voicing: 1;
 

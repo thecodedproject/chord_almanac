@@ -5,6 +5,7 @@ import {
   Mode,
   TetradQuality,
   TetradVoicing,
+  TriadVoicing,
 } from "../lib/chord_anthology"
 
 export const voicingLabels: Record<TetradVoicing, string> = {
@@ -14,6 +15,11 @@ export const voicingLabels: Record<TetradVoicing, string> = {
   [TetradVoicing.Drop2And3]: "Drop 2+3",
   [TetradVoicing.Drop2And4]: "Drop 2+4",
   [TetradVoicing.Spread]: "Spread",
+}
+
+export const triadVoicingLabels: Record<TriadVoicing, string> = {
+  [TriadVoicing.Close]: "Close",
+  [TriadVoicing.Open]: "Open",
 }
 
 // there is one inversion per chord voice; the first is the chord in root position

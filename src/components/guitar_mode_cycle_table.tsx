@@ -8,18 +8,27 @@ import {
   VoiceLeadingChord,
   modeForScale,
   numTetradVoices,
+  scaleDegree,
+  scaleDegreesInDiatonicInterval,
   shiftScaleDiatonically,
+  tetradVoicing,
+  tetradVoicings,
 } from '../lib/chord_anthology'
 
 import {
   inversionLabels,
   modeLabels,
+  scaleDegreeNumerals,
   voicingLabels,
 } from './music_labels'
 
 import {
-  TetradVoicingChart,
-} from './tetrad_voicing_chart'
+  chordSymbol,
+} from '../lib/chord_names'
+
+import {
+  ChordVoicingChart,
+} from './chord_voicing_chart'
 
 interface TableProps extends CSSProperties {
   "--num-modes": number;
@@ -68,17 +77,30 @@ export function GuitarModeCycleTable(
     voicing,
     modeInterval = DiatonicInterval.Fourth,
     inversionOffset = defaultInversionOffset,
+    setVoicing,
   }: {
     chord: VoiceLeadingChord,
     strings: number[],
     voicing: TetradVoicing,
     modeInterval?: DiatonicInterval,
     inversionOffset?: number,
+    setVoicing?: (v: TetradVoicing) => void,
   }
 ) {
 
   const columns = [...Array(numTetradVoices)].map((_, i) => i)
   const modeChords = modeCycle(chord, modeInterval)
+
+  // the degree of the chord's scale each mode starts on, each the cycle's interval
+  // further up than the last
+  const numDegrees = chord.scale.intervals.length
+  const degreeOf = (iMode: number) =>
+    ((iMode*scaleDegreesInDiatonicInterval(modeInterval))%numDegrees) + 1
+
+  // the chord's symbol where it has one, and otherwise the notes it is made of
+  const chordNameOf = (c: VoiceLeadingChord) =>
+    chordSymbol(c.scale, c.tones) ??
+    [...c.tones].sort((a, b) => a-b).map((d) => scaleDegree(c.scale, d)).join(" ")
 
   // each row works its way up through the inversions as the other tables do, but starts
   // from a different one, so a column holds a different inversion in every row
@@ -91,8 +113,23 @@ export function GuitarModeCycleTable(
       style={{"--num-modes": modeChords.length} as TableProps}
     >
 
-      {/* the corner cell names the voicing every chart in the table is voiced in */}
-      <div className="voicingLabel">{voicingLabels[voicing]}</div>
+      {/* the corner cell names the voicing every chart in the table is voiced in, and
+          lets it be changed when the table is given a way to change it */}
+      <div className="voicingLabel">
+        {setVoicing == undefined
+          ? voicingLabels[voicing]
+          : (
+            <select
+              value={voicing}
+              onChange={(event) => setVoicing(event.target.value as TetradVoicing)}
+            >
+              {tetradVoicings.map((v) => (
+                <option key={v} value={v}>{voicingLabels[v]}</option>
+              ))}
+            </select>
+          )
+        }
+      </div>
 
       {/* the columns are only numbered; which inversion each holds changes row by row,
           so every chart names its own */}
@@ -112,17 +149,18 @@ export function GuitarModeCycleTable(
             className="modeLabel"
             style={{"--mode": iMode+1} as ModeProps}
           >
+            <div className="chordDegree">
+              {scaleDegreeNumerals[degreeOf(iMode)-1]}
+            </div>
+            <div className="chordName">{chordNameOf(modeChord)}</div>
             <div className="modeName">{modeLabels[modeForScale(modeChord.scale)]}</div>
-            <div className="modeRoot">{modeChord.scale.root}</div>
           </div>
           {columns.map((column) => {
             const inversion = inversionAt(column, iMode)
             return (
-              <TetradVoicingChart
-                chord={modeChord}
+              <ChordVoicingChart
+                voicedChord={tetradVoicing(modeChord, voicing, inversion)}
                 strings={strings}
-                voicing={voicing}
-                inversion={inversion}
                 label={inversionLabels[inversion]}
                 style={{
                   "--mode": iMode+1,
