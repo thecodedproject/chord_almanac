@@ -1,0 +1,5 @@
+/* picks out the scale type, root and position currently chosen */
+.scaleSelector button.selected {
+  background: #e0e0e0;
+  font-weight: bold;
+}

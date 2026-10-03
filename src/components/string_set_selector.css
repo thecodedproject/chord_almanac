@@ -1,0 +1,39 @@
+.stringSetSelector {
+  --playable: #cce5ff;
+}
+
+/* there can be more sets than fit across the page */
+.stringSetSelector .stringSets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.stringSetSelector button.playable {
+  background: var(--playable);
+}
+
+/* the chosen set stands out from the rest whether or not it is playable */
+.stringSetSelector button:disabled {
+  font-weight: bold;
+  outline: 2px solid #555;
+}
+
+/* sits under the buttons, lined up with them rather than with the row's label */
+.stringSetSelector .playableKey {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+
+  margin: -0.2rem 0 0.5rem calc(8em + 0.4rem);
+  color: #555;
+}
+
+.stringSetSelector .playableSwatch {
+  display: inline-block;
+  width: 0.9em;
+  height: 0.9em;
+
+  background: var(--playable);
+  border: 1px solid #999;
+}

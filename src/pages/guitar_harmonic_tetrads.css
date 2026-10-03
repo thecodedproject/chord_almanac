@@ -1,0 +1,8 @@
+.guitarHarmonicTetrads .guitarModeCycleTable {
+  margin-top: 1.5rem;
+}
+
+.guitarHarmonicTetrads .chordDegreesPrompt {
+  color: grey;
+  font-style: italic;
+}

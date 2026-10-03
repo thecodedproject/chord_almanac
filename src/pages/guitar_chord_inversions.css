@@ -1,0 +1,8 @@
+.guitarChordInversions .guitarChordInversionsTable {
+  margin-top: 1.5rem;
+}
+
+.guitarChordInversions .chordDegreesPrompt {
+  color: grey;
+  font-style: italic;
+}
