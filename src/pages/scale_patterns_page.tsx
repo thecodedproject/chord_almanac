@@ -31,6 +31,10 @@ import {
 } from "../components/transport_controls"
 
 import {
+  useSpaceToggle,
+} from "../components/use_space_toggle"
+
+import {
   Note,
   ScaleType,
   modeForScale,
@@ -142,9 +146,9 @@ export function ScalePatternsPage() {
     const loopChoice = {...live.current.choice, ionianRoot: keyAt(loop)}
     const key = JSON.stringify([loopChoice, pattern, beatsPerBar])
     if (loopCache.current?.key != key) {
-      const notes: (PlayerNote | undefined)[] = []
+      const notes: (PlayerNote[] | undefined)[] = []
       for (const n of writeRun(loopChoice, pattern, beatsPerBar).notes) {
-        notes[n.slot] = {midi: midiNumber(n.pitch), slots: n.length ?? 1}
+        notes[n.slot] = [{midi: midiNumber(n.pitch), slots: n.length ?? 1}]
       }
       loopCache.current = {
         key: key,
@@ -235,48 +239,7 @@ export function ScalePatternsPage() {
     props.cycleKeys.set(on)
   }
 
-  // The space bar starts and pauses playback while the focus is on nothing in
-  // particular, or on a button or slider (which pressing it would otherwise press again,
-  // or do nothing to). Elsewhere the space keeps its usual job - ticking a checkbox, say.
-  const togglePlay = useRef(() => {})
-  togglePlay.current = () => props.playerState.value == "playing" ? pause() : play()
-  useEffect(() => {
-    const spaceToggles = (event: KeyboardEvent) => {
-      const target = event.target
-      return event.code == "Space"
-        && !event.defaultPrevented
-        && !(event.ctrlKey || event.metaKey || event.altKey || event.shiftKey)
-        && (
-          target == document.body
-          || target == document.documentElement
-          || target instanceof HTMLButtonElement
-          || (target instanceof HTMLInputElement && target.type == "range")
-        )
-    }
-
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!spaceToggles(event)) {
-        return
-      }
-      // keeps a focused button from being pressed by the space too
-      event.preventDefault()
-      if (!event.repeat) {
-        togglePlay.current()
-      }
-    }
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (spaceToggles(event)) {
-        event.preventDefault()
-      }
-    }
-
-    window.addEventListener("keydown", onKeyDown)
-    window.addEventListener("keyup", onKeyUp)
-    return () => {
-      window.removeEventListener("keydown", onKeyDown)
-      window.removeEventListener("keyup", onKeyUp)
-    }
-  }, [])
+  useSpaceToggle(() => props.playerState.value == "playing" ? pause() : play())
 
   // the note sounding, which is held through the slots it lasts
   const heardSlot = props.playerState.value == "stopped" ? undefined : props.position.value?.slot

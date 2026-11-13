@@ -1,0 +1,164 @@
+/* the chart: four bars to a line, each bar ruled off by a barline, and the last bar of
+   the tune by a double one */
+.leadSheetChart {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  row-gap: 1.6rem;
+
+  margin: 1rem 0;
+  padding-top: 1rem;
+  text-align: left;
+}
+
+.leadSheetChart .bar {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-height: 3.2rem;
+
+  border-left: 1px solid var(--fg);
+}
+
+.leadSheetChart .bar:nth-child(4n),
+.leadSheetChart .bar:last-child {
+  border-right: 1px solid var(--fg);
+}
+
+.leadSheetChart .bar:last-child {
+  border-right: 4px double var(--fg);
+}
+
+/* the bar being played */
+.leadSheetChart .bar.current {
+  background: var(--hover-bg);
+}
+
+/* the letter of a section, boxed above the bar it starts */
+.leadSheetChart .section {
+  position: absolute;
+  top: -1.45rem;
+  left: -0.5rem;
+
+  padding: 0 0.3rem;
+  border: 1px solid var(--fg);
+  background: var(--bg);
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: bold;
+  font-size: 0.9rem;
+  line-height: 1.2rem;
+}
+
+.leadSheetChart .chord {
+  flex-basis: 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+
+  padding: 0.2rem 0.4rem;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+/* while editing, every chord can be picked to be written over */
+.leadSheetChart.editing .chord {
+  cursor: text;
+  outline: 1px dashed transparent;
+  outline-offset: -3px;
+}
+
+.leadSheetChart.editing button.chord:hover,
+.leadSheetChart.editing button.chord:focus-visible {
+  outline-color: var(--border-strong);
+  background: var(--hover-bg);
+}
+
+.leadSheetChart .chord.selected {
+  padding: 0.15rem;
+}
+
+/* a chord the bar has no beat for in the time signature, kept but not played */
+.leadSheetChart .chord.unplayed {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.leadSheetChart .chord.playing .chordSymbol {
+  color: var(--score-highlight);
+}
+
+/* a chord written as charts do: a large root, with the rest of it raised beside it */
+.chordSymbol {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chordSymbol .suffix {
+  font-size: 0.65em;
+  vertical-align: 0.55em;
+  margin-left: 0.05em;
+}
+
+/* Georgia has no sharps or flats of its own, and the ones it borrows sit wide and low */
+.chordSymbol .accidental {
+  display: inline-block;
+  margin: 0 -0.08em 0 -0.04em;
+  font-size: 0.8em;
+  vertical-align: 0.2em;
+}
+
+.chordSymbol .bass {
+  font-size: 0.8em;
+}
+
+.chordSymbol.repeat {
+  color: var(--fg-muted);
+}
+
+.chordSymbol.unreadable {
+  color: var(--score-highlight);
+  text-decoration: underline wavy;
+  font-size: 1.1rem;
+}
+
+/* the box a chord is written in */
+.leadSheetChart .chordInput {
+  width: 100%;
+  min-width: 3em;
+  padding: 0.25rem 0.3rem;
+
+  border: 2px solid var(--accent);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--fg);
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.2rem;
+}
+
+.leadSheetChart .chordInput.unreadable {
+  border-color: var(--score-highlight);
+}
+
+@media (max-width: 760px) {
+  .leadSheetChart {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 1rem;
+  }
+
+  .leadSheetChart .bar:nth-child(2n) {
+    border-right: 1px solid var(--fg);
+  }
+
+  .chordSymbol {
+    font-size: 1.25rem;
+  }
+}

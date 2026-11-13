@@ -11,13 +11,14 @@ export interface PlayerNote {
   slots: number
 }
 
-// PlayerLoop is one time round: the grid of slots it is played on, and the note started
-// in each slot (undefined where there is none).
+// PlayerLoop is one time round: the grid of slots it is played on, and the notes started
+// in each slot - one for a melody, several sounded together for a chord (undefined or
+// empty where there are none).
 export interface PlayerLoop {
   slotsPerBeat: number
   beatsPerBar: number
   numBars: number
-  notes: (PlayerNote | undefined)[]
+  notes: (PlayerNote[] | undefined)[]
 }
 
 export interface PlayerPosition {
@@ -226,9 +227,12 @@ export class PatternPlayer {
       if (slot % loop.slotsPerBeat == 0) {
         this.click(this.nextTime, slot % slotsPerBar == 0)
       }
-      const note = loop.notes[slot]
-      if (note != undefined) {
-        this.note(this.nextTime, note.midi, note.slots * slotLength)
+      const notes = loop.notes[slot] ?? []
+      // the notes of a chord share the loudness of a single note between them, near
+      // enough, so a chord isn't heard much louder than a melody
+      const level = 1 / Math.sqrt(Math.max(1, notes.length))
+      for (const note of notes) {
+        this.note(this.nextTime, note.midi, note.slots * slotLength, level)
       }
 
       this.pending.push({...this.next, time: this.nextTime})
@@ -273,19 +277,20 @@ export class PatternPlayer {
     osc.stop(time + 0.06)
   }
 
-  // note sounds a note for most of the time it is played for, leaving a gap before the
+  // note sounds a note, at the given share of full loudness, for most of the time it is played for, leaving a gap before the
   // next so that repeated notes are heard as two
-  private note(time: number, midi: number, length: number) {
+  private note(time: number, midi: number, length: number, level: number) {
     const ctx = this.ctx!
     const osc = ctx.createOscillator()
     const env = ctx.createGain()
     const end = time + length * 0.9
+    const gain = 0.35 * level
 
     osc.type = "triangle"
     osc.frequency.value = 440 * Math.pow(2, (midi - 69) / 12)
     env.gain.setValueAtTime(0, time)
-    env.gain.linearRampToValueAtTime(0.35, time + 0.005)
-    env.gain.setValueAtTime(0.35, end - 0.02)
+    env.gain.linearRampToValueAtTime(gain, time + 0.005)
+    env.gain.setValueAtTime(gain, end - 0.02)
     env.gain.linearRampToValueAtTime(0, end)
 
     osc.connect(env).connect(this.noteGain!)

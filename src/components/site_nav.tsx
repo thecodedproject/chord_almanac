@@ -40,6 +40,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Practice Routines",
     pages: [
       {path: "/scale-patterns", label: "Scale Patterns"},
+      {path: "/lead-sheets", label: "Lead Sheet Player"},
     ],
   },
 ];

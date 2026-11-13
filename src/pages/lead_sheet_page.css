@@ -1,0 +1,88 @@
+/* the sheets kept: which is open, and what can be done with them */
+.leadSheetPage .sheetLibrary {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.leadSheetPage .sheetLibrary label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 0.4rem;
+}
+
+.leadSheetPage .sheetLibrary select {
+  max-width: 16em;
+  padding: 0.2rem;
+}
+
+.leadSheetPage .confirmDelete {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.4rem;
+}
+
+.leadSheetPage .confirmDelete .danger {
+  color: var(--score-highlight);
+  font-weight: bold;
+}
+
+.leadSheetPage .saveStatus {
+  min-width: 6em;
+  margin-left: 0.6rem;
+  text-align: left;
+  font-size: 0.85rem;
+  color: var(--fg-faint);
+}
+
+.leadSheetPage .saveStatus.failed {
+  color: var(--score-highlight);
+}
+
+.leadSheetPage .sheetMessage {
+  margin: 0.5rem 0 0;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
+/* the sheet's name, and the switch between playing it and changing it */
+.leadSheetPage .sheetTitle {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.2rem 0 0.4rem;
+}
+
+.leadSheetPage .sheetName {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.leadSheetPage input.sheetName {
+  width: min(22em, 70vw);
+  padding: 0.1rem 0.4rem;
+  text-align: center;
+}
+
+.leadSheetPage .sheetEditor {
+  padding: 0.4rem 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+/* the transport stays in reach at the bottom of the window however far down the chart
+   has been scrolled */
+.leadSheetPage .transportControls {
+  position: sticky;
+  bottom: 0;
+  margin-top: 1.5rem;
+
+  background: var(--bg);
+}

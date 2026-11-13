@@ -18,13 +18,16 @@ interface TransportProps {
   setClickOn: (on: boolean) => void
   notesOn: boolean
   setNotesOn: (on: boolean) => void
-  cycleKeys: boolean
-  setCycleKeys: (on: boolean) => void
+  // what the notes played over the metronome are called: "Notes", or "Chords"
+  notesLabel?: string
+  // left out where there are no keys to move round
+  cycleKeys?: boolean
+  setCycleKeys?: (on: boolean) => void
 }
 
 // TransportControls starts, pauses and stops playback, and sets how it is played: its
-// tempo, whether the metronome and the notes are heard, and whether each time round
-// moves on to the next key.
+// tempo, whether the metronome and the notes are heard, and (where it can) whether each
+// time round moves on to the next key.
 export function TransportControls(props: TransportProps) {
 
   const clampTempo = (bpm: number) => Math.max(minTempo, Math.min(maxTempo, Math.round(bpm)))
@@ -73,17 +76,19 @@ export function TransportControls(props: TransportProps) {
             checked={props.notesOn}
             onChange={(event) => props.setNotesOn(event.target.checked)}
           />
-          Notes
+          {props.notesLabel ?? "Notes"}
         </label>
-        <label>
-          <input
-            type="checkbox"
-            className="cycleKeys"
-            checked={props.cycleKeys}
-            onChange={(event) => props.setCycleKeys(event.target.checked)}
-          />
-          Move round the cycle of fourths
-        </label>
+        {props.setCycleKeys != undefined && (
+          <label>
+            <input
+              type="checkbox"
+              className="cycleKeys"
+              checked={props.cycleKeys ?? false}
+              onChange={(event) => props.setCycleKeys?.(event.target.checked)}
+            />
+            Move round the cycle of fourths
+          </label>
+        )}
       </div>
     </div>
   )

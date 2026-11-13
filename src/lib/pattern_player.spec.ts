@@ -63,7 +63,7 @@ describe("PatternPlayer", () => {
     slotsPerBeat: 2,
     beatsPerBar: 2,
     numBars: 1,
-    notes: [{midi: 60, slots: 1}, {midi: 62, slots: 1}, {midi: 64, slots: 2}, undefined],
+    notes: [[{midi: 60, slots: 1}], [{midi: 62, slots: 1}], [{midi: 64, slots: 2}], undefined],
   }
 
   // advance moves the audio clock and timers on, and draws the next frame
@@ -104,6 +104,23 @@ describe("PatternPlayer", () => {
       [0.5, 294],
       [1, 1320], [1, 330],
       [2, 1760], [2, 262],
+    ])
+  })
+
+  it("sounds the notes of a chord together", async () => {
+    const chords: PlayerLoop = {
+      slotsPerBeat: 1,
+      beatsPerBar: 2,
+      numBars: 1,
+      notes: [[{midi: 60, slots: 2}, {midi: 64, slots: 2}, {midi: 67, slots: 2}], undefined],
+    }
+    await startPlayer({loopAt: () => chords, clickOn: false})
+    advance(1)
+
+    expect(FakeAudioContext.last.started
+      .filter((s) => s.frequency < 1000)
+      .map((s) => [Number((s.time - 0.1).toFixed(2)), Math.round(s.frequency)])).toEqual([
+      [0, 262], [0, 330], [0, 392],
     ])
   })
 
@@ -185,7 +202,7 @@ describe("PatternPlayer", () => {
       slotsPerBeat: 3,
       beatsPerBar: 2,
       numBars: 1,
-      notes: [undefined, undefined, {midi: 67, slots: 1}, {midi: 69, slots: 1}, undefined, undefined],
+      notes: [undefined, undefined, [{midi: 67, slots: 1}], [{midi: 69, slots: 1}], undefined, undefined],
     }
     await startPlayer({loopAt: () => slotsPerBeat == 2 ? loop : triplets})
     // the first quaver has been scheduled, and the second is next, half a beat in
