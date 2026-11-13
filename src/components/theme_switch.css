@@ -1,0 +1,39 @@
+.themeSwitch {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+
+  font-size: 12px;
+}
+
+.themeSwitch > label {
+  padding-top: 0.2em;
+  font-weight: bold;
+}
+
+.themeSlider {
+  display: flex;
+  flex-direction: column;
+  width: 9em;
+}
+
+.themeSlider input {
+  width: 100%;
+  margin: 0;
+}
+
+/* the names spread out under the slider's three stops */
+.themeSlider .themeNames {
+  display: flex;
+  justify-content: space-between;
+}
+
+.themeSlider .themeNames span {
+  cursor: pointer;
+  color: var(--fg-muted);
+}
+
+.themeSlider .themeNames span.selected {
+  color: var(--fg);
+  font-weight: bold;
+}

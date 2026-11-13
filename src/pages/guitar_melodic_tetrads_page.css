@@ -6,5 +6,5 @@
   max-width: 44em;
   margin-top: 0;
 
-  color: #555;
+  color: var(--fg-muted);
 }

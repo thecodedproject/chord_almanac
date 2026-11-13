@@ -4,8 +4,8 @@
 
   --num-chords: 7;     /* Each chord of the scale is in it's own row */
 
-  --table-line: #e8e8e8;
-  --table-header-line: #bbb;
+  --table-line: var(--line);
+  --table-header-line: var(--line-strong);
 
   display: grid;
   grid-template-columns: var(--col-label-width) auto;
@@ -50,7 +50,7 @@
 }
 
 .guitarMelodicTetradsTable .positionLabel .modeName {
-  color: #555;
+  color: var(--fg-muted);
 }
 
 .guitarMelodicTetradsTable .chordLabel {
@@ -81,7 +81,7 @@
 .guitarMelodicTetradsTable .chordLabel .chordNotes {
   font-family: monospace;
   letter-spacing: 0.1em;
-  color: #555;
+  color: var(--fg-muted);
 }
 
 .guitarMelodicTetradsTable .chartCell {

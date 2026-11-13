@@ -1,4 +1,4 @@
 .scaleDegreeSelector button.selected {
-  background: #e0e0e0;
+  background: var(--selected-bg);
   font-weight: bold;
 }

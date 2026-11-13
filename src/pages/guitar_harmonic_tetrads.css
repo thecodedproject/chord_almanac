@@ -3,6 +3,6 @@
 }
 
 .guitarHarmonicTetrads .chordDegreesPrompt {
-  color: grey;
+  color: var(--fg-faint);
   font-style: italic;
 }

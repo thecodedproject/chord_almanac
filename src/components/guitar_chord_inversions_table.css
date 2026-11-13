@@ -6,8 +6,8 @@
   --num-inversions: 4; /* Each inversion is in it's own column - one per chord voice */
   --num-voicings: 6;   /* Each voicing is in it's own row */
 
-  --table-line: #e8e8e8;
-  --table-header-line: #bbb;
+  --table-line: var(--line);
+  --table-header-line: var(--line-strong);
 
   display: grid;
   grid-template-columns: var(--col-label-width) repeat(var(--num-inversions), auto);

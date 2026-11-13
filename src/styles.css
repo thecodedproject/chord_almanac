@@ -2,10 +2,136 @@
   box-sizing: border-box;
 }
 
+/* the colours of the site, one set for each theme the theme switch can pick. Everything
+   coloured on the site takes its colour from these, so a theme is only this list */
+:root {
+  color-scheme: light;
+
+  --bg: #fff;
+  --fg: #000;
+  --fg-muted: #555;
+  --fg-faint: #808080;
+
+  --line: #e8e8e8;
+  --line-strong: #bbb;
+  --border: #ccc;
+  --border-strong: #999;
+
+  --hover-bg: #f0f0f0;
+  --selected-bg: #e0e0e0;
+  --panel-head-bg: #e0e0e0;
+  --control-bg: #f0f0f0;
+
+  --link: #0000ee;
+  --accent: #0000ee;
+
+  /* the finger charts */
+  --note: red;
+  --background-note: blue;
+  --background-note-alpha: 0.25;
+  --fret-wire: black;
+  --fret-marker: grey;
+  --playable-bg: #cce5ff;
+
+  /* the note picked out on a score */
+  --score-highlight: #d00;
+}
+
+/* low contrast: soft beige on a warm dark brown, with the reds and blues toned down to
+   sit alongside it */
+:root[data-theme="dim"] {
+  color-scheme: dark;
+
+  --bg: #26231d;
+  --fg: #e3d7b4;
+  --fg-muted: #b3a885;
+  --fg-faint: #8c8369;
+
+  --line: #3a352b;
+  --line-strong: #5c5442;
+  --border: #4d4639;
+  --border-strong: #7a705a;
+
+  --hover-bg: #332e26;
+  --selected-bg: #4f4635;
+  --panel-head-bg: #38322a;
+  --control-bg: #312c24;
+
+  --link: #e6c86e;
+  --accent: #c9a75b;
+
+  --note: #d9826b;
+  --background-note: #8fb0d9;
+  --background-note-alpha: 0.35;
+  --fret-wire: #c9bd9a;
+  --fret-marker: #6b6350;
+  --playable-bg: #3b4a5e;
+
+  --score-highlight: #e8836a;
+}
+
+/* high contrast: more or less the light theme turned inside out */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg: #000;
+  --fg: #fff;
+  --fg-muted: #d0d0d0;
+  --fg-faint: #a8a8a8;
+
+  --line: #333;
+  --line-strong: #777;
+  --border: #888;
+  --border-strong: #bbb;
+
+  --hover-bg: #1f1f1f;
+  --selected-bg: #4a4a4a;
+  --panel-head-bg: #222;
+  --control-bg: #111;
+
+  --link: #66ccff;
+  --accent: #66ccff;
+
+  --note: #ff4d4d;
+  --background-note: #4da6ff;
+  --background-note-alpha: 0.45;
+  --fret-wire: #fff;
+  --fret-marker: #888;
+  --playable-bg: #00407a;
+
+  --score-highlight: #ff4d4d;
+}
+
 body {
   font-family: sans-serif;
   margin: 20px;
   padding: 0;
+
+  background: var(--bg);
+  color: var(--fg);
+  accent-color: var(--accent);
+}
+
+a {
+  color: var(--link);
+}
+
+/* the browser's own buttons and inputs stay grey whatever the theme, so the dark themes
+   draw their own. :where keeps these from outweighing the styles of any one control */
+:where(:root[data-theme="dim"], :root[data-theme="dark"]) :where(button, select, input:not([type="range"]):not([type="checkbox"]):not([type="radio"])) {
+  background: var(--control-bg);
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+}
+
+:where(:root[data-theme="dim"], :root[data-theme="dark"]) :where(button:not(:disabled):hover) {
+  background: var(--hover-bg);
+}
+
+:where(:root[data-theme="dim"], :root[data-theme="dark"]) :where(button:disabled) {
+  color: var(--fg-faint);
+  border-color: var(--border);
 }
 
 h1 {
@@ -44,14 +170,4 @@ code {
 
 ul {
   padding-inline-start: 20px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: sans-serif;
-  margin: 20px;
-  padding: 0;
 }

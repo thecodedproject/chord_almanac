@@ -1,6 +1,8 @@
-import { NavLink, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import "./App.css";
 
+import { SiteNav } from './components/site_nav';
+import { ThemeSwitch } from './components/theme_switch';
 import { ChordCyclePage } from './pages/chord_cycle_page';
 import { GuitarHarmonicTetrads } from './pages/guitar_harmonic_tetrads';
 import { GuitarMelodicTetradsPage } from './pages/guitar_melodic_tetrads_page';
@@ -11,22 +13,21 @@ import { ScalePatternsPage } from './pages/scale_patterns_page';
 export default function App(): JSX.Element {
   return (
     <>
-      <nav className="appNav">
-        <NavLink to="/" end>Guitar Scale</NavLink>
-        <NavLink to="/chord-inversions">Chord Inversions</NavLink>
-        <NavLink to="/melodic-tetrads">Melodic Tetrads</NavLink>
-        <NavLink to="/harmonic-tetrads">Harmonic Tetrads</NavLink>
-        <NavLink to="/chord-cycle">Chord Cycle</NavLink>
-        <NavLink to="/scale-patterns">Scale Patterns</NavLink>
-      </nav>
-      <Routes>
-        <Route path="/" element={<GuitarScalePage />} />
-        <Route path="/melodic-tetrads" element={<GuitarMelodicTetradsPage />} />
-        <Route path="/chord-inversions" element={<GuitarChordInversions />} />
-        <Route path="/harmonic-tetrads" element={<GuitarHarmonicTetrads />} />
-        <Route path="/chord-cycle" element={<ChordCyclePage />} />
-        <Route path="/scale-patterns" element={<ScalePatternsPage />} />
-      </Routes>
+      <header className="appHeader">
+        <h1 className="siteName">Chord Almanac</h1>
+        <ThemeSwitch />
+      </header>
+      <SiteNav />
+      <main className="appMain">
+        <Routes>
+          <Route path="/" element={<GuitarScalePage />} />
+          <Route path="/melodic-tetrads" element={<GuitarMelodicTetradsPage />} />
+          <Route path="/chord-inversions" element={<GuitarChordInversions />} />
+          <Route path="/harmonic-tetrads" element={<GuitarHarmonicTetrads />} />
+          <Route path="/chord-cycle" element={<ChordCyclePage />} />
+          <Route path="/scale-patterns" element={<ScalePatternsPage />} />
+        </Routes>
+      </main>
     </>
   );
 }

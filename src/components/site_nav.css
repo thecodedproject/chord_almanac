@@ -1,0 +1,138 @@
+/* an old fashioned boxed table of contents, running the height of the window over the
+   left of the page so the page itself stays centred in the window */
+.siteNav {
+  --nav-width: min(240px, 85vw);
+  --nav-border: 2px;
+
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  width: var(--nav-width);
+
+  border-right: var(--nav-border) solid var(--border-strong);
+  box-shadow: 3px 0 0 var(--line-strong);
+  background: var(--bg);
+
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 12px;
+  text-align: left;
+
+  /* hidden off the left of the window. Sliding away it eases out over a long, slow
+     tail, the way the DHTML menus of the Netscape days used to, and only once it is
+     out of sight is it hidden for good, so nothing in it can be tabbed to */
+  transform: translateX(-100%);
+  visibility: hidden;
+  transition:
+    transform 1200ms cubic-bezier(0.05, 0.75, 0.05, 1),
+    visibility 0s 1200ms;
+}
+
+.siteNav.shown {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 450ms cubic-bezier(0.2, 0.8, 0.3, 1),
+    visibility 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .siteNav,
+  .siteNav.shown {
+    transition: none;
+  }
+}
+
+/* the tab on the sidebar's edge which slides it in and out. It sticks out past the
+   sidebar, so it is still there to click once the sidebar has gone */
+.siteNav .siteNavToggle {
+  position: absolute;
+  top: 1rem;
+  left: calc(100% + var(--nav-border));
+  visibility: visible;
+
+  width: 22px;
+  height: 48px;
+  padding: 0;
+
+  border: var(--nav-border) solid var(--border-strong);
+  border-left: none;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 var(--line-strong);
+  background: var(--panel-head-bg);
+  color: var(--fg);
+
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.siteNav .siteNavToggle:hover {
+  background: var(--hover-bg);
+}
+
+.siteNav .siteNavContents {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.siteNav .siteNavTitle {
+  padding: 1.2em 0.6em 0.6em;
+  border-bottom: 2px solid var(--border-strong);
+
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.siteNav .navSection + .navSection {
+  border-top: 1px solid var(--border-strong);
+}
+
+/* reset to plain text from whatever the theme does to buttons */
+.siteNav .navSectionHeading {
+  display: flex;
+  gap: 0.4em;
+  width: 100%;
+  padding: 0.4em 0.6em;
+
+  border: none;
+  border-radius: 0;
+  background: var(--panel-head-bg);
+  color: var(--fg);
+
+  font: inherit;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+}
+
+.siteNav .navSectionHeading:hover {
+  text-decoration: underline;
+}
+
+.siteNav .navMarker {
+  flex: none;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.siteNav ul {
+  margin: 0;
+  padding: 0.4em 0.6em 0.5em 2.2em;
+  list-style: square;
+}
+
+.siteNav li {
+  padding: 0.15em 0;
+}
+
+.siteNav a {
+  color: var(--link);
+}
+
+/* the page being looked at */
+.siteNav a.active {
+  color: var(--fg);
+  font-weight: bold;
+  text-decoration: none;
+}

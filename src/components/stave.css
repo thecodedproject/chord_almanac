@@ -1,7 +1,7 @@
 /* the shapes of the score are drawn in whatever colour the text around them is, and pick
    out the highlighted note in its own */
 .stave {
-  --highlight: #d00;
+  --highlight: var(--score-highlight);
 
   max-width: 100%;
   height: auto;

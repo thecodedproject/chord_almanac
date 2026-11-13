@@ -15,11 +15,11 @@
   --string-img-width: 2px;
 
   --note-dot-width: 30px;
-  --note-color: red;
+  --note-color: var(--note);
 
   /* the scale a chart's notes are picked out of, shown behind them */
-  --background-note-color: blue;
-  --background-note-opacity: 0.25;
+  --background-note-color: var(--background-note);
+  --background-note-opacity: var(--background-note-alpha);
 
   display: grid;
   grid-template-columns: var(--left-pad) calc(var(--num-frets)*(var(--fret-img-width)+var(--fret-space)));;
@@ -89,7 +89,7 @@
 
   grid-column: calc(1 + 2 * var(--fret));
   grid-row:1/-1;
-  background-color: black;
+  background-color: var(--fret-wire);
   width: 100%;
   height: 100%;
 }
@@ -100,7 +100,7 @@
   top: calc((var(--string) - 1)*var(--string-space) + var(--string-space)/2);
 
   position: absolute;
-  background-color: black;
+  background-color: var(--fret-wire);
   width: 100%;
   height: var(--string-img-width);
   z-index: 1;
@@ -114,7 +114,7 @@
 
   display: flex;
   margin: auto;
-  background-color: grey;
+  background-color: var(--fg-faint);
   height: var(--fret-marker-width);
   width: var(--fret-marker-width);
   border-radius: 100%;

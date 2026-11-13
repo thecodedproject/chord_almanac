@@ -6,8 +6,8 @@
   --num-columns: 4;    /* Each chart of a row is in it's own column */
   --num-modes: 7;      /* Each mode is in it's own row */
 
-  --table-line: #e8e8e8;
-  --table-header-line: #bbb;
+  --table-line: var(--line);
+  --table-header-line: var(--line-strong);
 
   display: grid;
   grid-template-columns: var(--col-label-width) repeat(var(--num-columns), auto);
@@ -64,7 +64,7 @@
 }
 
 .guitarModeCycleTable .modeLabel .modeName {
-  color: #555;
+  color: var(--fg-muted);
 }
 
 .guitarModeCycleTable .columnLabel {
