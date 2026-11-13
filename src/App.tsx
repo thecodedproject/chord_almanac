@@ -6,6 +6,7 @@ import { GuitarHarmonicTetrads } from './pages/guitar_harmonic_tetrads';
 import { GuitarMelodicTetradsPage } from './pages/guitar_melodic_tetrads_page';
 import { GuitarScalePage } from './pages/guitar_scale_page';
 import { GuitarChordInversions } from './pages/guitar_chord_inversions';
+import { ScalePatternsPage } from './pages/scale_patterns_page';
 
 export default function App(): JSX.Element {
   return (
@@ -16,6 +17,7 @@ export default function App(): JSX.Element {
         <NavLink to="/melodic-tetrads">Melodic Tetrads</NavLink>
         <NavLink to="/harmonic-tetrads">Harmonic Tetrads</NavLink>
         <NavLink to="/chord-cycle">Chord Cycle</NavLink>
+        <NavLink to="/scale-patterns">Scale Patterns</NavLink>
       </nav>
       <Routes>
         <Route path="/" element={<GuitarScalePage />} />
@@ -23,6 +25,7 @@ export default function App(): JSX.Element {
         <Route path="/chord-inversions" element={<GuitarChordInversions />} />
         <Route path="/harmonic-tetrads" element={<GuitarHarmonicTetrads />} />
         <Route path="/chord-cycle" element={<ChordCyclePage />} />
+        <Route path="/scale-patterns" element={<ScalePatternsPage />} />
       </Routes>
     </>
   );

@@ -1,0 +1,40 @@
+.scalePatterns h3 {
+  margin-bottom: 0.5rem;
+}
+
+/* the pattern's score sits beside the controls that change it */
+.scalePatterns .basePattern {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem 3rem;
+}
+
+.scalePatterns .run {
+  margin: 1.5rem 0;
+}
+
+.scalePatterns .nextKey {
+  margin-left: 1em;
+
+  font-weight: normal;
+  font-size: 0.85em;
+  color: #777;
+}
+
+/* the run takes the width of the page, and shrinks to fit it */
+.scalePatterns .runStave {
+  display: block;
+  width: 100%;
+}
+
+/* the transport stays in reach at the bottom of the window however far down the page
+   has been scrolled */
+.scalePatterns .transportControls {
+  position: sticky;
+  bottom: 0;
+  margin-top: 1.5rem;
+
+  background: #fff;
+}

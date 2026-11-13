@@ -1,0 +1,37 @@
+.transportControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 2rem;
+
+  padding: 0.8rem 1rem;
+  border-top: 1px solid #ccc;
+}
+
+.transportControls .transportButtons,
+.transportControls .tempo,
+.transportControls .toggles {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.transportControls .transportButtons button {
+  min-width: 6em;
+  padding: 0.3rem 0.6rem;
+}
+
+.transportControls .tempo input[type="range"] {
+  width: 12em;
+}
+
+/* keeps the controls after it from shuffling as the tempo goes up and down */
+.transportControls .bpm {
+  min-width: 4.5em;
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+}
+
+.transportControls .toggles {
+  gap: 1rem;
+}
