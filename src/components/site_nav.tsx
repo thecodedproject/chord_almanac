@@ -47,9 +47,7 @@ export const NAV_SECTIONS: NavSection[] = [
 
 const OPEN_KEY = "chordAlmanac.sidebarOpen";
 
-// the sidebar is open as it was left on the last visit, or on a first visit, open only
-// if the window is wide enough for it to sit beside the page without covering much
-function initiallyOpen(): boolean {
+function storedOpen(): boolean | null {
   try {
     const stored = window.localStorage.getItem(OPEN_KEY);
     if (stored !== null) {
@@ -58,8 +56,19 @@ function initiallyOpen(): boolean {
   } catch {
     // fall through to the default
   }
-  return window.innerWidth >= 1500;
+  return null;
 }
+
+// the sidebar is open as it was left on the last visit, or on a first visit, open only
+// if the window is wide enough for it to sit beside the page without covering much
+function initiallyOpen(): boolean {
+  return storedOpen() ?? window.innerWidth >= 1500;
+}
+
+// on a first visit to a window too narrow for the sidebar to start open, it slides out
+// and back again a moment after the page loads, so there is no missing that it's there
+const PEEK_DELAY_MS = 600;
+const PEEK_HOLD_MS = 1500;
 
 function sectionOf(pathname: string): string | undefined {
   return NAV_SECTIONS.find(s => s.pages.some(p => p.path === pathname))?.id;
@@ -72,6 +81,22 @@ function sectionOf(pathname: string): string | undefined {
 export function SiteNav(): JSX.Element {
   const {pathname} = useLocation();
   const [shown, setShown] = useState(initiallyOpen);
+  // read once, before the effect below stores the first visit's state
+  const [peek, setPeek] = useState(() => storedOpen() === null && !initiallyOpen());
+
+  useEffect(() => {
+    if (!peek) {
+      return;
+    }
+    const timers = [
+      window.setTimeout(() => setShown(true), PEEK_DELAY_MS),
+      window.setTimeout(() => {
+        setShown(false);
+        setPeek(false);
+      }, PEEK_DELAY_MS + PEEK_HOLD_MS),
+    ];
+    return () => timers.forEach(t => window.clearTimeout(t));
+  }, [peek]);
 
   useEffect(() => {
     try {
@@ -111,7 +136,11 @@ export function SiteNav(): JSX.Element {
         aria-controls="siteNavContents"
         aria-label={shown ? "Hide contents" : "Show contents"}
         title={shown ? "Hide contents" : "Show contents"}
-        onClick={() => setShown(s => !s)}
+        onClick={() => {
+          // taking hold of it calls off the peek, leaving it where it was put
+          setPeek(false);
+          setShown(s => !s);
+        }}
       >
         {shown ? "\u25C4" : "\u25BA"}
       </button>
