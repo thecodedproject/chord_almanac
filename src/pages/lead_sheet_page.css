@@ -43,6 +43,44 @@
   color: var(--score-highlight);
 }
 
+/* importing: a link pasted in, or a file chosen */
+.leadSheetPage .importPanel {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+
+  max-width: 46rem;
+  margin: 0.8rem auto 0;
+  padding: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.leadSheetPage .importLink {
+  flex: 1 1 18rem;
+  min-width: 0;
+  padding: 0.25rem 0.4rem;
+}
+
+.leadSheetPage .importOr {
+  color: var(--fg-faint);
+}
+
+.leadSheetPage .importHelp {
+  flex-basis: 100%;
+  margin: 0.2rem 0 0;
+  color: var(--fg-faint);
+  font-size: 0.85rem;
+}
+
+.leadSheetPage .sheetAbout {
+  margin: 0 0 0.4rem;
+  color: var(--fg-muted);
+  font-size: 0.9rem;
+}
+
 .leadSheetPage .sheetMessage {
   margin: 0.5rem 0 0;
   color: var(--fg-muted);

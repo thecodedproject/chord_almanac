@@ -8,6 +8,10 @@
 // sheet that can't be saved just isn't, and saveSheet says so.
 
 import {
+  readIRealText,
+} from "./ireal"
+
+import {
   LeadSheet,
   newId,
   validateSheet,
@@ -178,11 +182,18 @@ export function exportSheet(sheet: LeadSheet) {
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
+// SheetImport is what was read from something imported: the sheets, the playlist they
+// came from if they came from one, and notes on anything in them that couldn't be
+// carried over
+export interface SheetImport {
+  sheets: LeadSheet[]
+  playlist?: string
+  notes: string[]
+}
+
 // readSheetText reads a sheet from the text of a file. A sheet whose id is already in use
 // by a saved sheet is given a new one, so that importing a copy never overwrites the
 // sheet it was a copy of.
-//
-// Lead sheets written in other formats will be read from here too, one day.
 export function readSheetText(text: string): LeadSheet | undefined {
   let data: unknown
   try {
@@ -198,12 +209,24 @@ export function readSheetText(text: string): LeadSheet | undefined {
   return {...sheet, id: taken ? newId() : sheet.id, updatedAt: Date.now()}
 }
 
-// importSheetFile reads a sheet from a file chosen to import, failing if it isn't one
-export async function importSheetFile(file: Blob): Promise<LeadSheet> {
-  const text = await file.text()
+// readImport reads whatever was given to import - a lead sheet file of this site's own,
+// or iReal Pro links, on their own or in the page iReal Pro exports a playlist as -
+// giving undefined if there is nothing in it to read.
+//
+// Lead sheets written in other formats will be read from here too, one day.
+export function readImport(text: string): SheetImport | undefined {
   const sheet = readSheetText(text)
-  if (sheet == undefined) {
+  if (sheet != undefined) {
+    return {sheets: [sheet], notes: []}
+  }
+  return readIRealText(text)
+}
+
+// importSheetFile reads the sheets from a file chosen to import, failing if it has none
+export async function importSheetFile(file: Blob): Promise<SheetImport> {
+  const read = readImport(await file.text())
+  if (read == undefined) {
     throw new Error("not a lead sheet this site can read")
   }
-  return sheet
+  return read
 }

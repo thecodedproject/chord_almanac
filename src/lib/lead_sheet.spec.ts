@@ -132,6 +132,13 @@ describe("validateSheet", () => {
     expect(s.bars).toEqual([{chords: ["C"]}, {chords: [""]}])
   })
 
+  it("keeps what is known of the tune, and leaves out what isn't", () => {
+    const s = validateSheet({bars: [], composer: "Hancock Herbie", style: "Medium Swing", key: " "})!
+    expect(s.composer).toEqual("Hancock Herbie")
+    expect(s.style).toEqual("Medium Swing")
+    expect("key" in s).toBe(false)
+  })
+
   it("keeps the tempo in range", () => {
     expect(validateSheet({bars: [], tempo: 1000})!.tempo).toEqual(240)
   })

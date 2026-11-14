@@ -102,20 +102,32 @@ const families: [RegExp, Family, SeventhMark][] = [
 // a major seventh following an augmented or diminished marker: "+maj7", "oM7"
 const majorSeventh = new RegExp("^(" + majorMark + "|\\^)")
 
-const extension = /^(6\/9|69|6|7|9|11|13)/
+// the extension: a sixth, a seventh or something stacked on one - or a power chord
+// ("C5", root and fifth) or a triad with a second added ("C2"), as iReal Pro writes them
+const extension = /^(6\/9|69|6|7|9|11|13|5|2)/
+
+// chords the site's own names leave out, as they are only ever written on lead sheets -
+// where the names at the heart of other chords are used to name scales' chords too, and
+// these would muddle those (a minor triad with a sharpened fifth is an inverted major
+// triad, there)
+const leadSheetSuffixes: Record<string, string> = {
+  "7": "5",
+  "3,8": "m♯5",
+}
 
 // the alterations and additions that can follow, and how each is written out
 const alterations: [RegExp, string][] = [
   [/^alt/, "alt"],
   [/^sus2/, "sus2"],
   [/^sus4?/, "sus4"],
-  [/^add(b9|#9|#11|9|11|13|2|4)/, "add"],
+  [/^add(b9|#9|#11|9|11|13|2|3|4)/, "add"],
   [/^(b5|-5)/, "♭5"],
   [/^(#5|\+5)/, "♯5"],
   [/^(b9|-9)/, "♭9"],
   [/^(#9|\+9)/, "♯9"],
   [/^(#11|\+11)/, "♯11"],
   [/^(b13|-13)/, "♭13"],
+  [/^b6/, "♭6"],
   [/^9/, "9"],
   [/^11/, "11"],
   [/^13/, "13"],
@@ -197,8 +209,11 @@ export function parseChord(text: string): ParsedChord | undefined {
   }
 
   // the triad or seventh chord at the heart of it
+  const isPower = number == "5"
+  const isAddedSecond = number == "2"
   const isSixth = number == "6" || number == "69"
-  const isSeventh = !isSixth && (number != undefined || seventhMark == "major" || family == "half")
+  const isSeventh = !isSixth && !isPower && !isAddedSecond
+    && (number != undefined || seventhMark == "major" || family == "half")
 
   // Natural tensions written after the extension: on a seventh chord they stretch it to
   // the highest of them (C7(9) is C9, Cmaj7(9,13) Cmaj13); on a sixth chord a ninth
@@ -234,14 +249,14 @@ export function parseChord(text: string): ParsedChord | undefined {
     fifth = 8
   }
 
-  const intervals = [third, fifth]
+  const intervals = isPower ? [fifth] : [third, fifth]
   if (isSixth) {
     intervals.push(9)
   } else if (isSeventh) {
     intervals.push(seventhMark != undefined ? 11 : family == "dim" ? 9 : 10)
   }
 
-  const baseSuffix = chordSymbolSuffixes[intervals.join()]
+  const baseSuffix = chordSymbolSuffixes[intervals.join()] ?? leadSheetSuffixes[intervals.join()]
   if (baseSuffix == undefined) {
     return undefined
   }
@@ -251,6 +266,8 @@ export function parseChord(text: string): ParsedChord | undefined {
   let suffix = baseSuffix
   if (number == "69") {
     suffix = suffix.replace("6", "6/9")
+  } else if (isAddedSecond) {
+    suffix += "2"
   } else if (number == "9" || number == "11" || number == "13") {
     suffix = suffix.replace("7", number)
   }

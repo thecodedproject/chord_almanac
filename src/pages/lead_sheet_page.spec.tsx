@@ -257,6 +257,7 @@ describe("LeadSheetPage", () => {
     // jsdom's files have no text() of their own
     ;(file as any).text = () => Promise.resolve(JSON.stringify({name: "Imported", bars: [{chords: ["Fmaj7"]}]}))
 
+    fireEvent.click(screen.getByRole("button", {name: "Import…"}))
     await act(async () => {
       fireEvent.change(screen.getByLabelText("Lead sheet file to import"), {target: {files: [file]}})
     })
@@ -266,11 +267,52 @@ describe("LeadSheetPage", () => {
     expect(listSheets().map((s) => s.name)).toContain("Imported")
   })
 
+  it("imports a tune from an iReal Pro link", () => {
+    render(<LeadSheetPage />)
+    fireEvent.click(screen.getByRole("button", {name: "Import…"}))
+    const link = "irealb://And%20What%20If%20I%20Don%27t=Hancock%20Herbie==Medium%20Swing=Eb==1r34LbKcu71N%7CQy4Eb7%20QyX7bEZL%20lcKQy7X%2DC%7CQyX7bEZL7bB%7CAb7X4TA%2A%7BX7GB%2AQ%7CF%2D77bEZL7bB%207%2DF2NLZ%20QyXQyX%7DQyXbB%2FXyQ%5D%5ByX7%2DFB%207bE%20LZC7%20lcKQyX7bBZL%20lKcQyX7FZL%20lcKQyX%20%5D%5B%2AAlcKQybB%2F7%2Db7XyQ7%2DF%7CQyX7bA%7CQyXb7EZL%20lcKQyX7%2DC%7CXyQ%7CFEZL7bXyQZ%20==0=0==="
+    fireEvent.change(screen.getByRole("textbox", {name: "iReal Pro link"}), {target: {value: link}})
+    fireEvent.click(screen.getByRole("button", {name: "Import link"}))
+
+    expect(document.querySelector(".sheetName")?.textContent).toEqual("And What If I Don't")
+    expect(document.querySelector(".sheetAbout")?.textContent).toEqual("Hancock Herbie · Medium Swing · Key of E♭")
+    expect(chart().length).toEqual(32)
+    expect(document.querySelector(".sheetMessage")?.textContent).toEqual("Imported “And What If I Don't”.")
+    // the panel is put away again
+    expect(screen.queryByRole("textbox", {name: "iReal Pro link"})).toBeNull()
+    expect(listSheets().map((s) => s.name)).toContain("And What If I Don't")
+  })
+
+  it("imports every tune of an iReal Pro playlist, telling what it couldn't carry over", () => {
+    render(<LeadSheetPage />)
+    fireEvent.click(screen.getByRole("button", {name: "Import…"}))
+    const link = "irealbook://" + encodeURIComponent(
+      "One=A=Swing=n=C=T44C |F |SG Z=Two=B=Swing=n=F=T44F |C Z=Gig")
+    fireEvent.change(screen.getByRole("textbox", {name: "iReal Pro link"}), {target: {value: link}})
+    fireEvent.click(screen.getByRole("button", {name: "Import link"}))
+
+    expect(document.querySelector(".sheetName")?.textContent).toEqual("One")
+    expect(document.querySelector(".sheetMessage")?.textContent).toEqual(
+      "Imported 2 tunes from “Gig”. Not carried over yet: codas, segnos, D.C. and D.S. (the chart is played straight through).")
+    expect(listSheets().map((s) => s.name)).toEqual(expect.arrayContaining(["One", "Two"]))
+  })
+
+  it("says so when a link can't be read", () => {
+    render(<LeadSheetPage />)
+    fireEvent.click(screen.getByRole("button", {name: "Import…"}))
+    fireEvent.change(screen.getByRole("textbox", {name: "iReal Pro link"}), {target: {value: "https://example.com"}})
+    fireEvent.click(screen.getByRole("button", {name: "Import link"}))
+
+    expect(document.querySelector(".sheetMessage")?.textContent).toMatch(/isn't an iReal Pro link/)
+    expect(document.querySelector(".sheetName")?.textContent).toEqual("ii–V–I workout")
+  })
+
   it("says so when a file isn't a lead sheet", async () => {
     render(<LeadSheetPage />)
     const file = new File(["nonsense"], "nonsense.json")
     ;(file as any).text = () => Promise.resolve("nonsense")
 
+    fireEvent.click(screen.getByRole("button", {name: "Import…"}))
     await act(async () => {
       fireEvent.change(screen.getByLabelText("Lead sheet file to import"), {target: {files: [file]}})
     })

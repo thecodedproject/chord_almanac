@@ -67,6 +67,7 @@ import {
 } from "../lib/lead_sheet_edit"
 
 import {
+  SheetImport,
   SheetSummary,
   deleteSheet,
   exportSheet,
@@ -74,6 +75,7 @@ import {
   lastOpenedId,
   listSheets,
   loadSheet,
+  readImport,
   saveSheet,
   setLastOpenedId,
   sheetFileExtension,
@@ -432,8 +434,36 @@ export function LeadSheetPage() {
 
   const onExport = () => exportSheet(finished())
 
+  // importing: from a file, or from an iReal Pro link pasted in
+  const [importing, setImporting] = useState(false)
+  const [link, setLink] = useState("")
   const fileInput = useRef<HTMLInputElement>(null)
-  const onImport = (event: ChangeEvent<HTMLInputElement>) => {
+
+  // openImport saves the sheets imported and opens the first of them
+  const openImport = (read: SheetImport) => {
+    if (!leave()) {
+      return
+    }
+    for (const s of read.sheets) {
+      if (!saveSheet(s)) {
+        setSheets(listSheets())
+        setMessage(couldNotSave(s))
+        return
+      }
+    }
+    setSheets(listSheets())
+    show(read.sheets[0])
+    setImporting(false)
+    setLink("")
+
+    const what = read.sheets.length == 1
+      ? `“${read.sheets[0].name}”`
+      : `${read.sheets.length} tunes` + (read.playlist == undefined ? "" : ` from “${read.playlist}”`)
+    const notes = read.notes.length == 0 ? "" : ` Not carried over yet: ${read.notes.join("; ")}.`
+    setMessage(`Imported ${what}.${notes}`)
+  }
+
+  const onImportFile = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     // so that choosing the same file again imports it again
     event.target.value = ""
@@ -441,12 +471,17 @@ export function LeadSheetPage() {
       return
     }
     importSheetFile(file)
-      .then((s) => {
-        if (openNew(s)) {
-          setMessage(`Imported “${s.name}”.`)
-        }
-      })
+      .then(openImport)
       .catch(() => setMessage(`“${file.name}” isn't a lead sheet that can be read here.`))
+  }
+
+  const onImportLink = () => {
+    const read = readImport(link)
+    if (read == undefined) {
+      setMessage("That isn't an iReal Pro link (irealb:// or irealbook://) that can be read here.")
+      return
+    }
+    openImport(read)
   }
 
   const onDelete = () => {
@@ -469,6 +504,13 @@ export function LeadSheetPage() {
 
   const selectedBar = selected == undefined ? undefined : sheet.bars[selected.bar]
 
+  // what is known of the tune: who wrote it, how it is played, and its key
+  const about = [
+    sheet.composer,
+    sheet.style,
+    sheet.key == undefined ? undefined : "Key of " + normaliseChord(sheet.key),
+  ].filter((a): a is string => a != undefined)
+
   return (
     <div className="leadSheetPage">
       <h2>Lead sheet player</h2>
@@ -483,18 +525,14 @@ export function LeadSheetPage() {
         <button type="button" onClick={onNew}>New</button>
         <button type="button" onClick={onDuplicate}>Duplicate</button>
         <button type="button" onClick={onExport} title="Save a copy as a file">Export</button>
-        <button type="button" onClick={() => fileInput.current?.click()} title="Open a lead sheet file">
+        <button
+          type="button"
+          aria-expanded={importing}
+          onClick={() => setImporting((i) => !i)}
+          title="Import a lead sheet file, or a tune from iReal Pro"
+        >
           Import…
         </button>
-        <input
-          ref={fileInput}
-          className="importFile"
-          type="file"
-          accept={sheetFileExtension + ",.json,application/json"}
-          aria-label="Lead sheet file to import"
-          onChange={onImport}
-          hidden
-        />
         {confirmingDelete ? (
           <span className="confirmDelete" role="group" aria-label="Confirm delete">
             Delete “{sheet.name}”?
@@ -508,6 +546,44 @@ export function LeadSheetPage() {
           {saveStatus == "saved" ? "Saved" : saveStatus == "saving" ? "Saving…" : "Couldn't save"}
         </span>
       </div>
+
+      {importing && (
+        <form
+          className="importPanel"
+          aria-label="Import"
+          onSubmit={(event) => {
+            event.preventDefault()
+            onImportLink()
+          }}
+        >
+          <input
+            type="text"
+            className="importLink"
+            aria-label="iReal Pro link"
+            placeholder="Paste an iReal Pro link: irealb://…"
+            value={link}
+            onChange={(event) => setLink(event.target.value)}
+            autoFocus
+          />
+          <button type="submit" disabled={link.trim() == ""}>Import link</button>
+          <span className="importOr">or</span>
+          <button type="button" onClick={() => fileInput.current?.click()}>Choose a file…</button>
+          <input
+            ref={fileInput}
+            className="importFile"
+            type="file"
+            accept={sheetFileExtension + ",.json,application/json,.html,.htm,.txt"}
+            aria-label="Lead sheet file to import"
+            onChange={onImportFile}
+            hidden
+          />
+          <button type="button" onClick={() => setImporting(false)}>Cancel</button>
+          <p className="importHelp">
+            A lead sheet exported from here, or iReal Pro tunes: share a tune or playlist as a
+            link, or export a playlist as a web page and choose that.
+          </p>
+        </form>
+      )}
 
       {message != undefined && <p className="sheetMessage" role="status">{message}</p>}
 
@@ -527,6 +603,7 @@ export function LeadSheetPage() {
           ? <button type="button" className="editToggle" onClick={stopEditing}>Done</button>
           : <button type="button" className="editToggle" onClick={startEditing}>Edit chords</button>}
       </div>
+      {about.length > 0 && <p className="sheetAbout">{about.join(" · ")}</p>}
 
       {editing && selected != undefined && selectedBar != undefined && (
         <div className="sheetEditor">

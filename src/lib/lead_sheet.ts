@@ -35,6 +35,10 @@ export interface LeadSheet {
   version: number
   id: string
   name: string
+  // who wrote the tune, how it is played ("Medium Swing") and its key ("Eb"), if known
+  composer?: string
+  style?: string
+  key?: string
   // the tempo it is played at to start with, in beats a minute
   tempo: number
   beatsPerBar: number
@@ -216,11 +220,21 @@ export function validateSheet(data: unknown): LeadSheet | undefined {
   const number = (x: unknown, min: number, max: number, otherwise: number) =>
     typeof x == "number" && isFinite(x) ? Math.max(min, Math.min(max, Math.round(x))) : otherwise
 
+  const text = (x: unknown) => typeof x == "string" && x.trim() != "" ? x : undefined
+  const about: Partial<LeadSheet> = {}
+  for (const field of ["composer", "style", "key"] as const) {
+    const value = text(data[field])
+    if (value != undefined) {
+      about[field] = value
+    }
+  }
+
   const beatsPerBar = number(data.beatsPerBar, 1, 12, 4)
   return {
     version: leadSheetVersion,
     id: typeof data.id == "string" && data.id != "" ? data.id : newId(),
-    name: typeof data.name == "string" && data.name.trim() != "" ? data.name : "Untitled",
+    name: text(data.name) ?? "Untitled",
+    ...about,
     tempo: number(data.tempo, 30, 240, defaultTempo),
     beatsPerBar: beatsPerBar,
     bars: bars.length > 0 ? bars : [{chords: [""]}],

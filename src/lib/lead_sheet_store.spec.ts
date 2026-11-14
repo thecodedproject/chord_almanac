@@ -12,6 +12,7 @@ import {
   lastOpenedId,
   listSheets,
   loadSheet,
+  readImport,
   readSheetText,
   saveSheet,
   setLastOpenedId,
@@ -130,6 +131,15 @@ describe("lead sheet files", () => {
     ["[1, 2, 3]"],
   ])("won't read %p", (text) => {
     expect(readSheetText(text)).toBeUndefined()
+  })
+
+  it("imports a lead sheet file, or iReal Pro links", () => {
+    expect(readImport(JSON.stringify(sheet("Alpha", 100)))?.sheets.map((s) => s.name)).toEqual(["Alpha"])
+
+    const link = "irealbook://" + encodeURIComponent("Tune=Someone=Swing=n=C=T44C |F Z")
+    expect(readImport(link)?.sheets.map((s) => s.bars.map((b) => b.chords))).toEqual([[["C"], ["F"]]])
+
+    expect(readImport("nothing here")).toBeUndefined()
   })
 
   it("names the file after the sheet", () => {
