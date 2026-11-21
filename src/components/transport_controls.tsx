@@ -2,7 +2,7 @@ import "./transport_controls.css"
 
 import {
   PlayerState,
-} from "../lib/pattern_player"
+} from "music-lib/audio"
 
 export const minTempo = 30
 export const maxTempo = 240

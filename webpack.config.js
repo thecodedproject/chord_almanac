@@ -25,6 +25,11 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    // music-lib may be linked from a local checkout with its own copy of react; always
+    // use the app's so there is only ever one
+    alias: {
+      react: path.resolve(__dirname, 'node_modules/react'),
+    },
   },
   output: {
     filename: 'main.js',

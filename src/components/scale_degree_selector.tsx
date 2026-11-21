@@ -3,7 +3,7 @@ import "./scale_degree_selector.css"
 
 import {
   numTetradVoices,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 // ScaleDegreeSelector picks the degrees of the scale a chord is built from, up to the
 // four a tetrad has room for.

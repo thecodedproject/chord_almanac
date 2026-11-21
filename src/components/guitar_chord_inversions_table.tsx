@@ -10,13 +10,13 @@ import {
   tetradVoicings,
   triadVoicing,
   triadVoicings,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   inversionLabels,
   triadVoicingLabels,
   voicingLabels,
-} from './music_labels'
+} from "music-lib/theory"
 
 import {
   ChordVoicingChart,

@@ -8,7 +8,7 @@ import {
   Note,
   ScaleType,
   shiftNote,
-} from "./chord_anthology"
+} from "music-lib/theory"
 
 import {
   GridNote,
@@ -18,7 +18,7 @@ import {
   scoreFromGrid,
   spellScale,
   trebleOctave,
-} from "./notation"
+} from "music-lib/theory"
 
 // the rhythms a pattern can be played in, each dividing the beat evenly
 export enum Rhythm {

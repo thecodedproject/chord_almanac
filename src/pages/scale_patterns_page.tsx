@@ -12,7 +12,7 @@ import {
 
 import {
   modeLabels,
-} from "../components/music_labels"
+} from "music-lib/theory"
 
 import {
   ScalePatternSelector,
@@ -24,7 +24,7 @@ import {
 
 import {
   Stave,
-} from "../components/stave"
+} from "music-lib/react"
 
 import {
   TransportControls,
@@ -39,13 +39,13 @@ import {
   ScaleType,
   modeForScale,
   scaleFromIonianRoot,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   midiNumber,
   spellScale,
   spelledNoteName,
-} from "../lib/notation"
+} from "music-lib/theory"
 
 import {
   PatternPlayer,
@@ -53,7 +53,7 @@ import {
   PlayerNote,
   PlayerPosition,
   PlayerState,
-} from "../lib/pattern_player"
+} from "music-lib/audio"
 
 import {
   Direction,

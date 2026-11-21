@@ -4,7 +4,7 @@ import {
   ScaleType,
   diatonicScale,
   scaleFromIonianRoot,
-} from './chord_anthology'
+} from "music-lib/theory"
 
 import {
   sevenStringTuning,

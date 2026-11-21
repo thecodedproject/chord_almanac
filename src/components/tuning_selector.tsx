@@ -2,7 +2,7 @@ import "./selector_row.css"
 
 import {
   Note,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   eightStringTuning,

@@ -9,7 +9,7 @@ import {
 
 import {
   parseChord,
-} from "../lib/chord_parser"
+} from "music-lib/theory"
 
 import {
   repeatChord,

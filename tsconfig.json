@@ -8,6 +8,13 @@
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
+    // music-lib may be linked from a local checkout with its own @types/react; always
+    // use the app's (see webpack.config.js)
+    "baseUrl": ".",
+    "paths": {
+      "react": ["node_modules/@types/react"],
+      "react/*": ["node_modules/@types/react/*"]
+    },
 
     /* Linting */
     "strict": true,

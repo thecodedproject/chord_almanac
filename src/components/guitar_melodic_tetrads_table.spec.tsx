@@ -11,7 +11,7 @@ import {
   Note,
   ScaleType,
   scaleFromIonianRoot,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   sixStringTuning,

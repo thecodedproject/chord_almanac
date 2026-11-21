@@ -9,11 +9,11 @@ import {
   ScaleType,
   modeForScale,
   scaleFromIonianRoot,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   modeLabels,
-} from "./music_labels"
+} from "music-lib/theory"
 
 interface IScaleProps {
   rootNote: IState<Note>;

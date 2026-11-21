@@ -10,7 +10,7 @@ import {
   Mode,
   Note,
   diatonicScale,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   GuitarChordInversionsTable,

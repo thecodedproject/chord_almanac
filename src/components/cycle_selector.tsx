@@ -2,7 +2,7 @@ import "./selector_row.css"
 
 import {
   DiatonicInterval,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 // the cycles a table of chords can be taken through, each named for the diatonic
 // interval it climbs by

@@ -3,7 +3,7 @@ import {
   ScaleType,
   TetradVoicing,
   scaleFromIonianRoot,
-} from './chord_anthology'
+} from "music-lib/theory"
 
 import {
   Playability,

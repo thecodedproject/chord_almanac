@@ -11,7 +11,7 @@ import {
   Note,
   TetradVoicing,
   diatonicScale,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   GuitarModeCycleTable,

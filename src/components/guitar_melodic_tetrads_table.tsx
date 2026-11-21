@@ -11,7 +11,7 @@ import {
   scaleDegreesInDiatonicInterval,
   shiftScaleDiatonically,
   tetradQualityAtScaleDegree,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   tabChordInPosition,
@@ -26,7 +26,7 @@ import {
   modeLabels,
   scaleDegreeNumerals,
   tetradQualityLabels,
-} from "./music_labels"
+} from "music-lib/theory"
 
 interface TableProps extends CSSProperties {
   "--num-chords": number;

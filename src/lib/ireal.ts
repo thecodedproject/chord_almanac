@@ -18,7 +18,7 @@
 import {
   normaliseChord,
   parseChord,
-} from "./chord_parser"
+} from "music-lib/theory"
 
 import {
   Bar,

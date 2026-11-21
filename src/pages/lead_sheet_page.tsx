@@ -32,7 +32,7 @@ import {
 import {
   normaliseChord,
   parseChord,
-} from "../lib/chord_parser"
+} from "music-lib/theory"
 
 import {
   LeadSheet,
@@ -86,7 +86,7 @@ import {
   PlayerLoop,
   PlayerPosition,
   PlayerState,
-} from "../lib/pattern_player"
+} from "music-lib/audio"
 
 // how long after a change the sheet is saved, so that a run of changes is saved once
 const saveDelay = 300

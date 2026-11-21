@@ -10,7 +10,7 @@ import {
   diatonicScale,
   semiTonesBetweenNotesUpwards,
   vlChordNotes,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 const CHORDS_PER_ROW = 7
 

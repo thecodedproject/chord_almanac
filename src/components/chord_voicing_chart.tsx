@@ -5,7 +5,7 @@ import {CSSProperties} from "react";
 import {
   VoiceLeadingChord,
   voicingScaleDegrees,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   TabNote,

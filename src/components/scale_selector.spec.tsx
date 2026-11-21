@@ -9,7 +9,7 @@ import {
 import {
   Note,
   ScaleType,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   ScaleSelector,

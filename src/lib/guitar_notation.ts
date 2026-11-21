@@ -5,7 +5,7 @@ import {
   scaleDegree,
   semiTonesBetweenNotesUpwards,
   semiTonesBetweenScaleDegreesUpwards,
-} from './chord_anthology'
+} from "music-lib/theory"
 
 export interface TabNote {
   string: number

@@ -29,11 +29,11 @@ import {
   numTriadVoices,
   scaleDegree,
   scaleFromIonianRoot,
-} from "../lib/chord_anthology"
+} from "music-lib/theory"
 
 import {
   chordSymbol,
-} from "../lib/chord_names"
+} from "music-lib/theory"
 
 // the seventh chord - by far the most common tetrad
 const defaultChordDegrees = [1,3,5,7]

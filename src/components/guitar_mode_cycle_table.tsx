@@ -13,18 +13,18 @@ import {
   shiftScaleDiatonically,
   tetradVoicing,
   tetradVoicings,
-} from '../lib/chord_anthology'
+} from "music-lib/theory"
 
 import {
   inversionLabels,
   modeLabels,
   scaleDegreeNumerals,
   voicingLabels,
-} from './music_labels'
+} from "music-lib/theory"
 
 import {
   chordSymbol,
-} from '../lib/chord_names'
+} from "music-lib/theory"
 
 import {
   ChordVoicingChart,

@@ -9,16 +9,16 @@
 import {
   ParsedChord,
   parseChord,
-} from "./chord_parser"
+} from "music-lib/theory"
 
 import {
   voiceProgression,
-} from "./chord_voicing"
+} from "music-lib/theory"
 
 import {
   PlayerLoop,
   PlayerNote,
-} from "./pattern_player"
+} from "music-lib/audio"
 
 export const leadSheetVersion = 1
 

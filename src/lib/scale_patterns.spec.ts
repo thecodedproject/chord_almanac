@@ -1,11 +1,11 @@
 import {
   Note,
   ScaleType,
-} from "./chord_anthology"
+} from "music-lib/theory"
 
 import {
   spelledNoteName,
-} from "./notation"
+} from "music-lib/theory"
 
 import {
   Direction,

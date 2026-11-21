@@ -6,7 +6,7 @@ import {
   numTetradVoices,
   shiftScaleDiatonically,
   tetradVoicing,
-} from './chord_anthology'
+} from "music-lib/theory"
 
 import {
   TabNote,
